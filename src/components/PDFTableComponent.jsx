@@ -92,7 +92,7 @@ const PDFTableComponent = () => {
             <TableComponent data={tableData} />
           </div>
           <span className='m-4'><ArrowLeftCircleFill onClick={()=>{setPageNumber(pageNumber-1)}} size={40} /></span>
-          <span className='m-4 p-2'><button className='btn btn-secondary'>{pageNumber}</button></span>
+          <span className='m-4 p-2'><input value={pageNumber} onChange={(e)=>{setPageNumber(e.target.value)}} className='btn btn-secondary'/></span>
           <span className='m-4'><ArrowRightCircleFill onClick={()=>{setPageNumber(pageNumber+1)}} size={40} /></span>
         </Col>
       </Row>
