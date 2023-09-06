@@ -4,11 +4,11 @@ import TableComponent from './TableComponent';
 import { pdfjs } from 'react-pdf';
 import { ArrowRightCircleFill, ArrowLeftCircleFill } from 'react-bootstrap-icons';
 import axios from 'axios';
+import { ColorRing } from 'react-loader-spinner'
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.js',
   import.meta.url,
 ).toString();
-
 const PDFTableComponent = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [tableData, setTableData] = useState([])
@@ -16,7 +16,9 @@ const PDFTableComponent = () => {
   const [invoiceNum, setInvoiceNum] = useState('')
   const [invoiceDate, setInvoiceDate] = useState('')
   const [vendorName, setvendorName] = useState('')
+  const [loading, setLoading]  = useState(false)
   useEffect(() => {
+    setLoading(true)
     const apiUrl = `${process.env.REACT_APP_INVOICE_URL}/${pageNumber}`;
     axios.get(apiUrl)
       .then((response) => {
@@ -41,6 +43,7 @@ const PDFTableComponent = () => {
         setInvoiceDate(response.data.response.invoice_date)
         setvendorName(response.data.response.vendor_name)
         console.log(response.data.response);
+        setLoading(false)
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
@@ -49,6 +52,17 @@ const PDFTableComponent = () => {
 
   return (
     <Container className='mt-4'>
+      {loading ? (
+      <ColorRing // Use your ColorRing component when loading is true
+        visible={true}
+        height="80"
+        width="80"
+        ariaLabel="blocks-loading"
+        wrapperStyle={{}}
+        wrapperClass="blocks-wrapper"
+        colors={['#F57E37', '#1BBEE9', '#F57E37', '#1BBEE9', '#F57E37', '#1BBEE9']}
+      />
+    ) : (
       <Row>
         <Col md={6}>
           <div
@@ -74,7 +88,7 @@ const PDFTableComponent = () => {
           </div>
         </Col>
         <Col md={6}>
-          <div className='mb-4' style={{ overflowX: 'scroll', overflowY: "scroll" }}>
+          <div className='mb-4' style={{  height: '530px', overflowX: 'scroll', overflowY: "scroll" }}>
             <TableComponent data={tableData} />
           </div>
           <span className='m-4'><ArrowLeftCircleFill onClick={()=>{setPageNumber(pageNumber-1)}} size={40} /></span>
@@ -82,6 +96,7 @@ const PDFTableComponent = () => {
           <span className='m-4'><ArrowRightCircleFill onClick={()=>{setPageNumber(pageNumber+1)}} size={40} /></span>
         </Col>
       </Row>
+    )}
     </Container>
   );
 };
