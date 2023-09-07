@@ -72,7 +72,7 @@ const PDFTableComponent = () => {
           >
             <iframe title='pdf' src={pdfUrl} width = "100%" height = "530" frameborder="0" allow='autoplay'></iframe>
           </div>
-          <div style={{ textAlign: 'justify' }} className='my-4 container'>
+          {/* <div style={{ textAlign: 'justify' }} className='my-4 container'>
             <div className='my-2'>
               Invoice Number:{' '}
               <span style={{ backgroundColor: '#f0f0f0', padding: '3px' }}>{invoiceNum}</span>
@@ -85,7 +85,7 @@ const PDFTableComponent = () => {
               Invoice Date:{' '}
               <span style={{ backgroundColor: '#f0f0f0', padding: '3px' }}>{invoiceDate}</span>
             </div>
-          </div>
+          </div> */}
         </Col>
         <Col md={6}>
           <div className='mb-4' style={{  height: '530px', overflowX: 'scroll', overflowY: "scroll" }}>
