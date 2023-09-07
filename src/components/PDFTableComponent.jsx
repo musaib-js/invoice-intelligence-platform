@@ -17,6 +17,7 @@ const PDFTableComponent = () => {
   const [invoiceDate, setInvoiceDate] = useState('')
   const [vendorName, setvendorName] = useState('')
   const [loading, setLoading]  = useState(false)
+  const [totalInvoices, setTotalInvoices] = useState(0)
   useEffect(() => {
     setLoading(true)
     const apiUrl = `${process.env.REACT_APP_INVOICE_URL}/${pageNumber}`;
@@ -36,13 +37,12 @@ const PDFTableComponent = () => {
           }
           tableData.push(obj);
         }
-        console.log(tableData)
         setTableData(tableData)
         setPdfUrl(response.data.response.pdf_link)
         setInvoiceNum(response.data.response.invoice_number)
         setInvoiceDate(response.data.response.invoice_date)
         setvendorName(response.data.response.vendor_name)
-        console.log(response.data.response);
+        setTotalInvoices(response.data.response.total_invoices)
         setLoading(false)
       })
       .catch((error) => {
@@ -70,7 +70,7 @@ const PDFTableComponent = () => {
               height: '530px',
             }}
           >
-            <iframe title='pdf' src={pdfUrl} width = "640" height = "530" frameborder="0" allow='autoplay'></iframe>
+            <iframe title='pdf' src={pdfUrl} width = "100%" height = "530" frameborder="0" allow='autoplay'></iframe>
           </div>
           <div style={{ textAlign: 'justify' }} className='my-4 container'>
             <div className='my-2'>
@@ -91,9 +91,9 @@ const PDFTableComponent = () => {
           <div className='mb-4' style={{  height: '530px', overflowX: 'scroll', overflowY: "scroll" }}>
             <TableComponent data={tableData} />
           </div>
-          <span className='m-4'><ArrowLeftCircleFill onClick={()=>{setPageNumber(pageNumber-1)}} size={40} /></span>
-          <span className='m-4 p-2'><input value={pageNumber} onChange={(e)=>{setPageNumber(e.target.value)}} className='btn btn-secondary'/></span>
-          <span className='m-4'><ArrowRightCircleFill onClick={()=>{setPageNumber(pageNumber+1)}} size={40} /></span>
+          <span className='my-4 mx-2'><ArrowLeftCircleFill onClick={()=>{setPageNumber(pageNumber-1)}} size={40} /></span>
+          <span className='my-4 mx-2'><input value={pageNumber} onChange={(e)=>{setPageNumber(e.target.value||0)}} className='btn btn-secondary' style={{ width: '50px' }}/><span className='my-4'> <strong>/</strong> <input value={`${totalInvoices}`} className='btn btn-secondary' style={{ width: '50px', cursor: 'default' }}/></span></span>
+          <span className='my-4 mx-2'><ArrowRightCircleFill onClick={()=>{setPageNumber(pageNumber+1)}} size={40} /></span>
         </Col>
       </Row>
     )}
