@@ -11,7 +11,7 @@ const ResizableCell = ({ children, width, ...rest }) => {
 
 const Table = ({ data, width }) => {
   if (!data || Object.keys(data).length === 0) {
-    return <p>No data to display.</p>;
+    return <p>Invoice structure is not compatible for detection.</p>;
   }
 
   const headers = Object.keys(data[Object.keys(data)[0]]);

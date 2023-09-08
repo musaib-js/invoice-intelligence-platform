@@ -18,37 +18,45 @@ const PDFTableComponent = () => {
   const [vendorName, setvendorName] = useState('')
   const [loading, setLoading]  = useState(false)
   const [totalInvoices, setTotalInvoices] = useState(0)
-  useEffect(() => {
-    setLoading(true)
-    const apiUrl = `${process.env.REACT_APP_INVOICE_URL}/${pageNumber}`;
-    axios.get(apiUrl)
-      .then((response) => {
-        const data = response.data.response.invoice
-        const keys = Object.keys(data);
-        // const Ukeys = Object.keys(data);
-        // const keys = keys.filter((key) => !key.startsWith('Unnamed'));
-        const tableData = [];
 
-        // Loop through the objects and create an array of objects
-        for (let i = 0; i < Object.values(data[keys[0]]).length; i++) {
-          const obj = {};
-          for (const key of keys) {
-            obj[key] = data[key][i];
-          }
-          tableData.push(obj);
+ useEffect(() => {
+  setLoading(true);
+  const apiUrl = `${process.env.REACT_APP_INVOICE_URL}/${pageNumber}`;
+  axios.get(apiUrl)
+    .then((response) => {
+      const data = response.data.response.invoice;
+      if (Object.keys(data).length === 0) {
+        setTableData([]); // Set tableData to an empty array if data is empty
+        setLoading(false);
+        setTotalInvoices(response.data.response.total_invoices);
+        setPdfUrl(response.data.response.pdf_link);
+        setInvoiceNum(response.data.response.invoice_number);
+        return;
+      }
+      
+      const keys = Object.keys(data);
+      const tableData = [];
+
+      for (let i = 0; i < Object.values(data[keys[0]]).length; i++) {
+        const obj = {};
+        for (const key of keys) {
+          obj[key] = data[key][i];
         }
-        setTableData(tableData)
-        setPdfUrl(response.data.response.pdf_link)
-        setInvoiceNum(response.data.response.invoice_number)
-        setInvoiceDate(response.data.response.invoice_date)
-        setvendorName(response.data.response.vendor_name)
-        setTotalInvoices(response.data.response.total_invoices)
-        setLoading(false)
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
-  }, [pageNumber]);
+        tableData.push(obj);
+      }
+      
+      setTableData(tableData);
+      setPdfUrl(response.data.response.pdf_link);
+      setInvoiceNum(response.data.response.invoice_number);
+      setInvoiceDate(response.data.response.invoice_date);
+      setvendorName(response.data.response.vendor_name);
+      setTotalInvoices(response.data.response.total_invoices);
+      setLoading(false);
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+    });
+}, [pageNumber]);
 
   return (
     <Container className='mt-4'>
@@ -92,7 +100,7 @@ const PDFTableComponent = () => {
             <TableComponent data={tableData} />
           </div>
           <span className='my-4 mx-2'><ArrowLeftCircleFill onClick={()=>{setPageNumber(pageNumber-1)}} size={40} /></span>
-          <span className='my-4 mx-2'><input value={pageNumber} onChange={(e)=>{setPageNumber(e.target.value||0)}} className='btn btn-secondary' style={{ width: '50px' }}/><span className='my-4'> <strong>/</strong> <input value={`${totalInvoices}`} className='btn btn-secondary' style={{ width: '50px', cursor: 'default' }}/></span></span>
+          <span className='my-4 mx-2'><input value={pageNumber} onChange={(e)=>{setPageNumber(e.target.value||1)}} className='btn btn-secondary' style={{ width: '50px' }}/><span className='my-4'> <strong>/</strong> <input value={`${totalInvoices}`} className='btn btn-secondary' style={{ width: '50px', cursor: 'default' }}/></span></span>
           <span className='my-4 mx-2'><ArrowRightCircleFill onClick={()=>{setPageNumber(pageNumber+1)}} size={40} /></span>
         </Col>
       </Row>
