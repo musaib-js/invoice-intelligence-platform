@@ -21,13 +21,16 @@ const PDFTableComponent = () => {
   const [newPage, setNewpage] = useState(0)
 
   useEffect(() => {
+    if (pageNumber === 0) {
+      return;
+    }
     setLoading(true);
     const apiUrl = `${process.env.REACT_APP_INVOICE_URL}/${pageNumber}`;
     axios.get(apiUrl)
       .then((response) => {
         const data = response.data.response.invoice;
         if (Object.keys(data).length === 0) {
-          setTableData([]); // Set tableData to an empty array if data is empty
+          setTableData([]);
           setLoading(false);
           setTotalInvoices(response.data.response.total_invoices);
           setPdfUrl(response.data.response.pdf_link);
@@ -104,10 +107,10 @@ const PDFTableComponent = () => {
             <span className='my-4 mx-2'>
               <input
               value={pageNumber}
-              // onChange={(e) => {
-              //   const newValue = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
-              //   setPageNumber(newValue);
-              // }}
+              onChange={(e) => {
+                const newValue = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+                setPageNumber(newValue);
+              }}
               className='btn btn-secondary'
               style={{ width: '50px' }}
             />
