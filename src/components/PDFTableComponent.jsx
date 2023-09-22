@@ -18,6 +18,7 @@ const PDFTableComponent = () => {
   const [vendorName, setvendorName] = useState('')
   const [loading, setLoading] = useState(false)
   const [totalInvoices, setTotalInvoices] = useState(0)
+  const [newPage, setNewpage] = useState(0)
 
   useEffect(() => {
     setLoading(true);
@@ -80,37 +81,53 @@ const PDFTableComponent = () => {
             >
               <iframe title='pdf' src={pdfUrl} width="100%" height="530" frameborder="0" allow='autoplay'></iframe>
             </div>
-            {/* <div style={{ textAlign: 'justify' }} className='my-4 container'>
-            <div className='my-2'>
+            <div style={{ textAlign: 'justify' }} className='my-4 container'>
+            <div className='my-4'>
               Invoice Number:{' '}
-              <span style={{ backgroundColor: '#f0f0f0', padding: '3px' }}>{invoiceNum}</span>
+              <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceNum}</span>
             </div>
-            <div className='my-2'>
+            <div className='my-4'>
               Vendor Name:{' '}
-              <span style={{ backgroundColor: '#f0f0f0', padding: '3px' }}>{vendorName}</span>
+              <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{vendorName}</span>
             </div>
-            <div className='my-2'>
+            <div className='my-4'>
               Invoice Date:{' '}
-              <span style={{ backgroundColor: '#f0f0f0', padding: '3px' }}>{invoiceDate}</span>
+              <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceDate}</span>
             </div>
-          </div> */}
+          </div>
           </Col>
           <Col md={6}>
             <div className='mb-4' style={{ height: '530px', overflowX: 'scroll', overflowY: "scroll" }}>
               <TableComponent data={tableData} />
             </div>
             <span className='my-4 mx-2'><ArrowLeftCircleFill onClick={() => { setPageNumber(pageNumber - 1) }} size={40} /></span>
-            <span className='my-4 mx-2'><input
+            <span className='my-4 mx-2'>
+              <input
               value={pageNumber}
-              onChange={(e) => {
-                const newValue = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
-                setPageNumber(newValue);
-              }}
+              // onChange={(e) => {
+              //   const newValue = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+              //   setPageNumber(newValue);
+              // }}
               className='btn btn-secondary'
               style={{ width: '50px' }}
             />
               <span className='my-4'> <strong>/</strong> <input value={`${totalInvoices}`} className='btn btn-secondary' style={{ width: '50px', cursor: 'default' }} /></span></span>
             <span className='my-4 mx-2'><ArrowRightCircleFill onClick={() => { setPageNumber(pageNumber + 1) }} size={40} /></span>
+            {/* <div className='my-2'>
+              <span> Enter Custom Invoice Number
+            <input
+              onChange={(e) => {
+                const newValue = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
+                setNewpage(newValue);
+              }}
+              className='mx-2 btn btn-secondary'
+              style={{ width: '50px' }}
+            />
+            <button className='mx-2 btn btn-dark' onClick={()=>{
+              setPageNumber(newPage)
+            }}>Go</button>
+            </span>
+            </div> */}
           </Col>
         </Row>
       )}
