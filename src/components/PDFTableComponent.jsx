@@ -54,7 +54,7 @@ const PDFTableComponent = () => {
         setTableData(tableData);
         setPdfUrl(response.data.response.pdf_link);
         setInvoiceNum(response.data.response.invoice_number);
-        setInvoiceDate(response.data.response.invoice_date);
+        setInvoiceDate(response.data.response.invoice_due_date);
         setvendorName(response.data.response.vendor_name);
         setTotalInvoices(response.data.response.total_invoices);
         setdueDate(response.data.response.due_date)
@@ -100,10 +100,10 @@ const PDFTableComponent = () => {
                 Invoice Number:{' '}
                 <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceNum}</span>
               </div>
-              {/* <div className='my-4'>
+              <div className='my-4'>
                 Due Date:{' '}
                 <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{dueDate}</span>
-              </div> */}
+              </div>
               {/* <div className='my-4'>
               Vendor Name:{' '}
               <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{vendorName}</span>
