@@ -60,8 +60,8 @@ const PDFTableComponent = () => {
         setvendorName(response.data.response.vendor_name);
         setTotalInvoices(response.data.response.total_invoices);
         setdueDate(response.data.response.invoice_due_date);
-        setInvoiceBalance(response.data.response.invoice_due_balance);
-        setInvoiceTotal(response.data.response.invoice_total)
+        setInvoiceBalance(response.data.response.invoice_balance_due);
+        setInvoiceTotal(response.data.response.invoice_total_amount)
         setLoading(false);
       })
       .catch((error) => {
