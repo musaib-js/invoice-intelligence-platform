@@ -17,6 +17,8 @@ const PDFTableComponent = () => {
   const [invoiceDate, setInvoiceDate] = useState('')
   const [dueDate, setdueDate] = useState('')
   const [vendorName, setvendorName] = useState('')
+  const [invoiceBalance, setInvoiceBalance] = useState('')
+  const [invoiceTotal, setInvoiceTotal] = useState('')
   const [loading, setLoading] = useState(false)
   const [totalInvoices, setTotalInvoices] = useState(0)
   const [newPage, setNewpage] = useState(0)
@@ -54,10 +56,12 @@ const PDFTableComponent = () => {
         setTableData(tableData);
         setPdfUrl(response.data.response.pdf_link);
         setInvoiceNum(response.data.response.invoice_number);
-        setInvoiceDate(response.data.response.invoice_due_date);
+        setInvoiceDate(response.data.response.invoice_date);
         setvendorName(response.data.response.vendor_name);
         setTotalInvoices(response.data.response.total_invoices);
-        setdueDate(response.data.response.due_date)
+        setdueDate(response.data.response.invoice_due_date);
+        setInvoiceBalance(response.data.response.invoice_due_balance);
+        setInvoiceTotal(response.data.response.invoice_total)
         setLoading(false);
       })
       .catch((error) => {
