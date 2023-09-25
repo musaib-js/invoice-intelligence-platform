@@ -108,10 +108,14 @@ const PDFTableComponent = () => {
                 Due Date:{' '}
                 <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{dueDate}</span>
               </div>
-              {/* <div className='my-4'>
-              Vendor Name:{' '}
-              <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{vendorName}</span>
-            </div> */}
+               <div className='my-4'>
+              Invoice Total:{' '}
+              <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceTotal}</span>
+            </div>
+              <div className='my-4'>
+              Invoice Balance:{' '}
+              <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceBalance}</span>
+            </div>
               <div className='my-4'>
                 Invoice Date:{' '}
                 <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceDate}</span>
