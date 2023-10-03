@@ -19,6 +19,11 @@ const PDFTableComponent = () => {
   const [vendorName, setvendorName] = useState('')
   const [invoiceBalance, setInvoiceBalance] = useState('')
   const [invoiceTotal, setInvoiceTotal] = useState('')
+  const [invoicePaymentTerms, setInvoicePaymentTerms] = useState('')
+  const [invoiceRemitTo, setInvoiceRemitTo] = useState('')
+  const [invoiceRoute, setInvoiceRoute] = useState('')
+  const [invoiceShipTo, setInvoiceShipTo] = useState('')
+  const [invoiceBillTo, setInvoiceBillTo] = useState('')
   const [loading, setLoading] = useState(false)
   const [totalInvoices, setTotalInvoices] = useState(0)
   const [newPage, setNewpage] = useState(0)
@@ -62,6 +67,11 @@ const PDFTableComponent = () => {
         setdueDate(response.data.response.invoice_due_date);
         setInvoiceBalance(response.data.response.invoice_balance_due);
         setInvoiceTotal(response.data.response.invoice_total_amount)
+        setInvoicePaymentTerms(response.data.response.invoice_payment_terms)
+        setInvoiceRemitTo(response.data.response.invoice_remit_to)
+        setInvoiceRoute(response.data.response.invoice_route)
+        setInvoiceShipTo(response.data.response.invoice_ship_to)
+        setInvoiceBillTo(response.data.response.invoice_bill_to)
         setLoading(false);
       })
       .catch((error) => {
@@ -108,17 +118,37 @@ const PDFTableComponent = () => {
                 Due Date:{' '}
                 <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{dueDate}</span>
               </div>
-               <div className='my-4'>
-              Invoice Total:{' '}
-              <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceTotal}</span>
-            </div>
               <div className='my-4'>
-              Invoice Balance:{' '}
-              <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceBalance}</span>
-            </div>
+                Invoice Total:{' '}
+                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceTotal}</span>
+              </div>
+              <div className='my-4'>
+                Invoice Balance Due:{' '}
+                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceBalance}</span>
+              </div>
               <div className='my-4'>
                 Invoice Date:{' '}
                 <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceDate}</span>
+              </div>
+              <div className='my-4'>
+                Invoice Payment Terms:{' '}
+                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoicePaymentTerms}</span>
+              </div>
+              <div className='my-4'>
+                Invoice Remit To:{' '}
+                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceRemitTo}</span>
+              </div>
+              <div className='my-4'>
+                Invoice Route:{' '}
+                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceRoute}</span>
+              </div>
+              <div className='my-4'>
+                Invoice Ship To:{' '}
+                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceShipTo}</span>
+              </div>
+              <div className='my-4'>
+                Invoice Bill To:{' '}
+                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceBillTo}</span>
               </div>
             </div>
           </Col>
