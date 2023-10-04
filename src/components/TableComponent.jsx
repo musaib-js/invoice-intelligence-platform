@@ -9,7 +9,7 @@ const ResizableCell = ({ children, width, ...rest }) => {
   );
 };
 
-const Table = ({ data, width, invoiceBalance, invoiceDate, invoiceNum, invoicePaymentTerms, invoiceBillTo, invoiceShipTo, invoiceRoute, dueDate, invoiceTotal, invoiceRemitTo, invoiceGlobalAddresses }) => {
+const Table = ({ data, width, invoiceBalance, invoiceDate, invoiceNum, invoicePaymentTerms, invoiceBillTo, invoiceShipTo, invoiceRoute, dueDate, invoiceTotal, invoiceRemitTo, invoiceGlobalAddresses, invoiceSoldTo}) => {
   const [showTable, setShowTable] = useState(false)
   if (!data || Object.keys(data).length === 0) {
     return <p>Invoice structure is not compatible for detection.</p>;
@@ -97,6 +97,10 @@ const Table = ({ data, width, invoiceBalance, invoiceDate, invoiceNum, invoicePa
               <td><ul style={{textTransform: "capitalize" }}>{invoiceGlobalAddresses? invoiceGlobalAddresses.map((address, index) => (
                 <li key={index}>{address}</li>
               )): ""}</ul></td>
+            </tr>
+            <tr>
+              <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Invoice Sold To</th>
+              <td>{invoiceSoldTo}</td>
             </tr>
           </tbody>
         </table>

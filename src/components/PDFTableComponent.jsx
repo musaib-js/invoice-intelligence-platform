@@ -25,6 +25,7 @@ const PDFTableComponent = () => {
   const [invoiceShipTo, setInvoiceShipTo] = useState('')
   const [invoiceBillTo, setInvoiceBillTo] = useState('')
   const [invoiceGlobalAddresses, setInvoiceGlobalAddresses] = useState('')
+  const [invoiceSoldTo, setInvoiceSoldTo] = useState('')
   const [loading, setLoading] = useState(false)
   const [totalInvoices, setTotalInvoices] = useState(0)
   const [newPage, setNewpage] = useState(0)
@@ -74,6 +75,7 @@ const PDFTableComponent = () => {
         setInvoiceShipTo(response.data.response.invoice_ship_to)
         setInvoiceBillTo(response.data.response.invoice_bill_to)
         setInvoiceGlobalAddresses(response.data.response.invoice_global_addresses)
+        setInvoiceSoldTo(response.data.response.invoice_sold_to)
         setLoading(false);
       })
       .catch((error) => {
@@ -114,7 +116,7 @@ const PDFTableComponent = () => {
           </Col>
           <Col md={6}>
             <div className='mb-4' style={{ height: '530px'}}>
-              <TableComponent data={tableData} invoiceBalance = {invoiceBalance} invoiceDate = {invoiceDate} invoiceNum = {invoiceNum} invoicePaymentTerms = {invoicePaymentTerms} invoiceBillTo = {invoiceBillTo} invoiceShipTo = {invoiceShipTo} invoiceRoute = {invoiceRoute} dueDate = {dueDate} invoiceTotal = {invoiceTotal} invoiceRemitTo = {invoiceRemitTo} invoiceGlobalAddresses = {invoiceGlobalAddresses}/>
+              <TableComponent data={tableData} invoiceBalance = {invoiceBalance} invoiceDate = {invoiceDate} invoiceNum = {invoiceNum} invoicePaymentTerms = {invoicePaymentTerms} invoiceBillTo = {invoiceBillTo} invoiceShipTo = {invoiceShipTo} invoiceRoute = {invoiceRoute} dueDate = {dueDate} invoiceTotal = {invoiceTotal} invoiceRemitTo = {invoiceRemitTo} invoiceGlobalAddresses = {invoiceGlobalAddresses} invoiceSoldTo={invoiceSoldTo}/>
             </div>
             <span className='my-4 mx-2'><ArrowLeftCircleFill onClick={() => {
               setPageNumber(tempValue - 1)
