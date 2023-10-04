@@ -94,9 +94,9 @@ const Table = ({ data, width, invoiceBalance, invoiceDate, invoiceNum, invoicePa
             </tr>
             <tr>
               <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Invoice Global Addresses</th>
-              <td>{invoiceGlobalAddresses? invoiceGlobalAddresses.map((address, index) => (
-                <span key={index}>{address}{index !== invoiceGlobalAddresses.length - 1 ? ', ' : ''}</span>
-              )): ""}</td>
+              <td><ul style={{textTransform: "capitalize" }}>{invoiceGlobalAddresses? invoiceGlobalAddresses.map((address, index) => (
+                <li key={index}>{address}</li>
+              )): ""}</ul></td>
             </tr>
           </tbody>
         </table>
