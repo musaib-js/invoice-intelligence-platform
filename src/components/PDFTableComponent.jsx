@@ -24,6 +24,7 @@ const PDFTableComponent = () => {
   const [invoiceRoute, setInvoiceRoute] = useState('')
   const [invoiceShipTo, setInvoiceShipTo] = useState('')
   const [invoiceBillTo, setInvoiceBillTo] = useState('')
+  const [invoiceGlobalAddresses, setInvoiceGlobalAddresses] = useState('')
   const [loading, setLoading] = useState(false)
   const [totalInvoices, setTotalInvoices] = useState(0)
   const [newPage, setNewpage] = useState(0)
@@ -72,6 +73,7 @@ const PDFTableComponent = () => {
         setInvoiceRoute(response.data.response.invoice_route)
         setInvoiceShipTo(response.data.response.invoice_ship_to)
         setInvoiceBillTo(response.data.response.invoice_bill_to)
+        setInvoiceGlobalAddresses(response.data.response.invoice_global_addresses)
         setLoading(false);
       })
       .catch((error) => {
@@ -109,52 +111,10 @@ const PDFTableComponent = () => {
             >
               <iframe title='pdf' src={pdfUrl} width="100%" height="530" frameborder="0" allow='autoplay'></iframe>
             </div>
-            <div style={{ textAlign: 'justify' }} className='my-4 container'>
-              <div className='my-4'>
-                Invoice Number:{' '}
-                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceNum}</span>
-              </div>
-              <div className='my-4'>
-                Due Date:{' '}
-                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{dueDate}</span>
-              </div>
-              <div className='my-4'>
-                Invoice Total:{' '}
-                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceTotal}</span>
-              </div>
-              <div className='my-4'>
-                Invoice Balance Due:{' '}
-                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceBalance}</span>
-              </div>
-              <div className='my-4'>
-                Invoice Date:{' '}
-                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceDate}</span>
-              </div>
-              <div className='my-4'>
-                Invoice Payment Terms:{' '}
-                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoicePaymentTerms}</span>
-              </div>
-              <div className='my-4'>
-                Invoice Remit To:{' '}
-                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceRemitTo}</span>
-              </div>
-              <div className='my-4'>
-                Invoice Route:{' '}
-                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceRoute}</span>
-              </div>
-              <div className='my-4'>
-                Invoice Ship To:{' '}
-                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceShipTo}</span>
-              </div>
-              <div className='my-4'>
-                Invoice Bill To:{' '}
-                <span style={{ backgroundColor: '#f0f0f0', padding: '5px', borderRadius: "6px" }}>{invoiceBillTo}</span>
-              </div>
-            </div>
           </Col>
           <Col md={6}>
-            <div className='mb-4' style={{ height: '530px', overflowX: 'scroll', overflowY: "scroll" }}>
-              <TableComponent data={tableData} />
+            <div className='mb-4' style={{ height: '530px'}}>
+              <TableComponent data={tableData} invoiceBalance = {invoiceBalance} invoiceDate = {invoiceDate} invoiceNum = {invoiceNum} invoicePaymentTerms = {invoicePaymentTerms} invoiceBillTo = {invoiceBillTo} invoiceShipTo = {invoiceShipTo} invoiceRoute = {invoiceRoute} dueDate = {dueDate} invoiceTotal = {invoiceTotal} invoiceRemitTo = {invoiceRemitTo} invoiceGlobalAddresses = {invoiceGlobalAddresses}/>
             </div>
             <span className='my-4 mx-2'><ArrowLeftCircleFill onClick={() => {
               setPageNumber(tempValue - 1)
