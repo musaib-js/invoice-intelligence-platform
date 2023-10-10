@@ -9,7 +9,7 @@ const ResizableCell = ({ children, width, ...rest }) => {
   );
 };
 
-const Table = ({ data, width, invoiceBalance, invoiceDate, invoiceNum, invoicePaymentTerms, invoiceBillTo, invoiceShipTo, invoiceRoute, dueDate, invoiceTotal, invoiceRemitTo, invoiceGlobalAddresses, invoiceSoldTo, totalPagesInInvoiceFromGlobal, totalPagesInInvoice, totalPagesRcvd}) => {
+const Table = ({ data, width, invoiceBalance, invoiceDate, invoiceNum, invoicePaymentTerms, invoiceBillTo, invoiceShipTo, invoiceRoute, dueDate, invoiceTotal, invoiceRemitTo, invoiceGlobalAddresses, invoiceSoldTo, totalPagesInInvoiceFromGlobal, totalPagesInInvoice, totalPagesRcvd, vendorName, vendorNamesSource, totalPagesProcessed}) => {
   const [showTable, setShowTable] = useState(false)
   if (!data || Object.keys(data).length === 0) {
     return <p>Invoice structure is not compatible for detection.</p>;
@@ -113,6 +113,18 @@ const Table = ({ data, width, invoiceBalance, invoiceDate, invoiceNum, invoicePa
             <tr>
               <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Total Pages in Invoice from Global</th>
               <td>{totalPagesInInvoiceFromGlobal}</td>
+            </tr>
+            <tr>
+              <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Vendor Names</th>
+              <td>{vendorName}</td>
+            </tr>
+            <tr>
+              <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Vendor Names Source</th>
+              <td>{vendorNamesSource}</td>
+            </tr>
+            <tr>
+              <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Total Pages Processed</th>
+              <td>{totalPagesProcessed}</td>
             </tr>
           </tbody>
         </table>

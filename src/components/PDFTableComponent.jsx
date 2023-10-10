@@ -29,6 +29,8 @@ const PDFTableComponent = () => {
   const [totalPagesRcvd, setTotalPagesRcvd] = useState('')
   const [totalPagesInInvoice, setTotalPagesInInvoice] = useState('')
   const [totalPagesInInvoiceFromGlobal, setTotalPagesInInvoiceFromGlobal] = useState('')
+  const [vendorNamesSource, setvendorNamesSource] = useState('')
+  const [totalPagesProcessed, setTotalPagesProcessed] = useState('')
   const [loading, setLoading] = useState(false)
   const [totalInvoices, setTotalInvoices] = useState(0)
   const [newPage, setNewpage] = useState(0)
@@ -67,7 +69,7 @@ const PDFTableComponent = () => {
         setPdfUrl(response.data.response.pdf_link);
         setInvoiceNum(response.data.response.invoice_number);
         setInvoiceDate(response.data.response.invoice_date);
-        setvendorName(response.data.response.vendor_name);
+        setvendorName(response.data.response.vendor_names);
         setTotalInvoices(response.data.response.total_invoices);
         setdueDate(response.data.response.invoice_due_date);
         setInvoiceBalance(response.data.response.invoice_balance_due);
@@ -82,6 +84,8 @@ const PDFTableComponent = () => {
         setTotalPagesRcvd(response.data.response.total_number_of_pages_received)
         setTotalPagesInInvoice(response.data.response.total_pages_in_invoice)
         setTotalPagesInInvoiceFromGlobal(response.data.response.total_pages_in_invoice_from_global)
+        setvendorNamesSource(response.data.response.vendor_names_source)
+        setTotalPagesProcessed(response.data.response.total_number_of_pages_processed)
         setLoading(false);
       })
       .catch((error) => {
@@ -125,7 +129,10 @@ const PDFTableComponent = () => {
               <TableComponent data={tableData} invoiceBalance = {invoiceBalance} invoiceDate = {invoiceDate} invoiceNum = {invoiceNum} invoicePaymentTerms = {invoicePaymentTerms} invoiceBillTo = {invoiceBillTo} invoiceShipTo = {invoiceShipTo} invoiceRoute = {invoiceRoute} dueDate = {dueDate} invoiceTotal = {invoiceTotal} invoiceRemitTo = {invoiceRemitTo} invoiceGlobalAddresses = {invoiceGlobalAddresses} invoiceSoldTo={invoiceSoldTo}
               totalPagesRcvd = {totalPagesRcvd}
               totalPagesInInvoice = {totalPagesInInvoice}
-              totalPagesInInvoiceFromGlobal = {totalPagesInInvoiceFromGlobal}/>
+              totalPagesInInvoiceFromGlobal = {totalPagesInInvoiceFromGlobal}
+              vendorName = {vendorName}
+              vendorNamesSource = {vendorNamesSource}
+              totalPagesProcessed = {totalPagesProcessed}/>
             </div>
             <span className='my-4 mx-2'><ArrowLeftCircleFill onClick={() => {
               setPageNumber(tempValue - 1)
