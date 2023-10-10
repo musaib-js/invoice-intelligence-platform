@@ -57,6 +57,14 @@ const Table = ({ data, width, invoiceBalance, invoiceDate, invoiceNum, invoicePa
               <td>{invoiceNum}</td>
             </tr>
             <tr>
+              <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Vendor Names</th>
+              <td>{vendorName}</td>
+            </tr>
+            <tr>
+              <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Vendor Names Source</th>
+              <td>{vendorNamesSource}</td>
+            </tr>
+            <tr>
               <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Due Date</th>
               <td>{dueDate?dueDate:"NA"}</td>
             </tr>
@@ -113,14 +121,6 @@ const Table = ({ data, width, invoiceBalance, invoiceDate, invoiceNum, invoicePa
             <tr>
               <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Total Pages in Invoice from Global</th>
               <td>{totalPagesInInvoiceFromGlobal}</td>
-            </tr>
-            <tr>
-              <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Vendor Names</th>
-              <td>{vendorName}</td>
-            </tr>
-            <tr>
-              <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Vendor Names Source</th>
-              <td>{vendorNamesSource}</td>
             </tr>
             <tr>
               <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Total Pages Processed</th>
