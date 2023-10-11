@@ -128,7 +128,7 @@ const Table = ({ data, width, invoiceBalance, invoiceDate, invoiceNum, invoicePa
             </tr>
             <tr>
               <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Human Verification Required</th>
-              <td>{humanVerificationReqd}</td>
+              <td>{humanVerificationReqd?"Yes":"No"}</td>
             </tr>
             <tr>
               <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Invoice Total From Table</th>
