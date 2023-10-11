@@ -31,6 +31,8 @@ const PDFTableComponent = () => {
   const [totalPagesInInvoiceFromGlobal, setTotalPagesInInvoiceFromGlobal] = useState('')
   const [vendorNamesSource, setvendorNamesSource] = useState('')
   const [totalPagesProcessed, setTotalPagesProcessed] = useState('')
+  const [humanVerificationReqd, setHumanVerificationReqd] = useState('')
+  const [invoiceTotalFromtable, setInvoiceTotalFromtable] = useState('')
   const [loading, setLoading] = useState(false)
   const [totalInvoices, setTotalInvoices] = useState(0)
   const [newPage, setNewpage] = useState(0)
@@ -86,6 +88,8 @@ const PDFTableComponent = () => {
         setTotalPagesInInvoiceFromGlobal(response.data.response.total_pages_in_invoice_from_global)
         setvendorNamesSource(response.data.response.vendor_names_source)
         setTotalPagesProcessed(response.data.response.total_number_of_pages_processed)
+        setHumanVerificationReqd(response.data.response.human_verification_required)
+        setInvoiceTotalFromtable(response.data.response.invoice_total_from_table)
         setLoading(false);
       })
       .catch((error) => {
@@ -132,7 +136,9 @@ const PDFTableComponent = () => {
               totalPagesInInvoiceFromGlobal = {totalPagesInInvoiceFromGlobal}
               vendorName = {vendorName}
               vendorNamesSource = {vendorNamesSource}
-              totalPagesProcessed = {totalPagesProcessed}/>
+              totalPagesProcessed = {totalPagesProcessed}
+              humanVerificationReqd = {humanVerificationReqd}
+              invoiceTotalFromtable = {invoiceTotalFromtable}/>
             </div>
             <span className='my-4 mx-2'><ArrowLeftCircleFill onClick={() => {
               setPageNumber(tempValue - 1)
