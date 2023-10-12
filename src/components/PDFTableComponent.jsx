@@ -33,6 +33,8 @@ const PDFTableComponent = () => {
   const [totalPagesProcessed, setTotalPagesProcessed] = useState('')
   const [humanVerificationReqd, setHumanVerificationReqd] = useState('')
   const [invoiceTotalFromtable, setInvoiceTotalFromtable] = useState('')
+  const [invoiceDiscount, setInvoiceDiscount] = useState('')
+  const [invoiceTaxes, setInvoiceTaxes]= useState([])
   const [loading, setLoading] = useState(false)
   const [totalInvoices, setTotalInvoices] = useState(0)
   const [newPage, setNewpage] = useState(0)
@@ -90,6 +92,8 @@ const PDFTableComponent = () => {
         setTotalPagesProcessed(response.data.response.total_number_of_pages_processed)
         setHumanVerificationReqd(response.data.response.human_verification_required)
         setInvoiceTotalFromtable(response.data.response.invoice_total_from_table)
+        setInvoiceDiscount(response.data.response.invoice_discount)
+        setInvoiceTaxes(response.data.response.invoice_taxes)
         setLoading(false);
       })
       .catch((error) => {
@@ -138,7 +142,9 @@ const PDFTableComponent = () => {
               vendorNamesSource = {vendorNamesSource}
               totalPagesProcessed = {totalPagesProcessed}
               humanVerificationReqd = {humanVerificationReqd}
-              invoiceTotalFromtable = {invoiceTotalFromtable}/>
+              invoiceTotalFromtable = {invoiceTotalFromtable}
+              invoiceDiscount = {invoiceDiscount}
+              invoiceTaxes = {invoiceTaxes}/>
             </div>
             <span className='my-4 mx-2'><ArrowLeftCircleFill onClick={() => {
               setPageNumber(tempValue - 1)
