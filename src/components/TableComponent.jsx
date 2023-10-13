@@ -134,16 +134,16 @@ const Table = ({ data, width, invoiceBalance, invoiceDate, invoiceNum, invoicePa
               <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Invoice Total From Table</th>
               <td>{invoiceTotalFromtable}</td>
             </tr>
-            <tr>
+            {/* <tr>
               <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Invoice Taxes</th>
               <td><ul>{invoiceTaxes? invoiceTaxes.map((tax, index) => (
                 <li key={index}>{tax}</li>
               )): ""}</ul></td>
-            </tr>
-            <tr>
+            </tr> */}
+            {/* <tr>
               <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Invoice Discount</th>
               <td>{invoiceDiscount}</td>
-            </tr>
+            </tr> */}
           </tbody>
         </table>
       </div>
