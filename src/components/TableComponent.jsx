@@ -9,7 +9,7 @@ const ResizableCell = ({ children, width, ...rest }) => {
   );
 };
 
-const Table = ({ data, width, invoiceBalance, invoiceDate, invoiceNum, invoicePaymentTerms, invoiceBillTo, invoiceShipTo, invoiceRoute, dueDate, invoiceTotal, invoiceRemitTo, invoiceGlobalAddresses, invoiceSoldTo, totalPagesInInvoiceFromGlobal, totalPagesInInvoice, totalPagesRcvd, vendorName, vendorNamesSource, totalPagesProcessed, humanVerificationReqd, invoiceTotalFromtable, invoiceTaxes, invoiceDiscount}) => {
+const Table = ({ data, width, invoiceBalance, invoiceDate, invoiceNum, invoicePaymentTerms, invoiceBillTo, invoiceShipTo, invoiceRoute, dueDate, invoiceTotal, invoiceRemitTo, invoiceGlobalAddresses, invoiceSoldTo, totalPagesInInvoiceFromGlobal, totalPagesInInvoice, totalPagesRcvd, vendorName, vendorNamesSource, totalPagesProcessed, humanVerificationReqd, invoiceTotalFromtable, invoiceTaxes, invoiceDiscount, failedReasons, verdict}) => {
   const [showTable, setShowTable] = useState(false)
   if (!data || Object.keys(data).length === 0) {
     return <p>Invoice structure is not compatible for detection.</p>;
@@ -134,16 +134,16 @@ const Table = ({ data, width, invoiceBalance, invoiceDate, invoiceNum, invoicePa
               <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Invoice Total From Table</th>
               <td>{invoiceTotalFromtable}</td>
             </tr>
-            {/* <tr>
-              <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Invoice Taxes</th>
-              <td><ul>{invoiceTaxes? invoiceTaxes.map((tax, index) => (
+            <tr>
+              <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Failed Reasons</th>
+              <td><ul>{failedReasons? failedReasons.map((tax, index) => (
                 <li key={index}>{tax}</li>
               )): ""}</ul></td>
-            </tr> */}
-            {/* <tr>
-              <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Invoice Discount</th>
-              <td>{invoiceDiscount}</td>
-            </tr> */}
+            </tr>
+            <tr>
+              <th style={{ width: "200px", backgroundColor: "#FFF2CD", textTransform: "capitalize" }}>Verdict</th>
+              <td>{verdict}</td>
+            </tr>
           </tbody>
         </table>
       </div>
