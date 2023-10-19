@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Resizable } from "react-resizable";
+import { Tooltip } from "react-tooltip";
 
 const ResizableCell = ({ children, width, ...rest }) => {
   return (
@@ -136,7 +137,8 @@ const Table = ({
               {Object.keys(data).map((key, rowIndex) => (
                 <tr key={rowIndex}>
                   {headers.map((header, colIndex) => (
-                    <td key={colIndex}>{data[key][header]}</td>
+                    <td data-bs-toggle="tooltip" data-bs-placement="top" title={data[key][header]?.confidence} key={colIndex}>{data[key][header].text}
+                    <Tooltip id={colIndex}>{data[key][header]?.confidence}</Tooltip></td>
                   ))}
                 </tr>
               ))}
@@ -471,7 +473,9 @@ const Table = ({
             {Object.keys(invoiceTableData).map((key, rowIndex) => (
               <tr key={rowIndex}>
                 {invTableheaders.map((header, colIndex) => (
-                  <td key={colIndex}>{invoiceTableData[key][header]}</td>
+                  <td data-bs-toggle="tooltip" data-bs-placement="top" title={invoiceTableData[key][header].confidence} key={colIndex}>{invoiceTableData[key][header].text}
+                   <Tooltip id={colIndex}>{invoiceTableData[key][header].confidence}</Tooltip></td>
+                 
                 ))}
               </tr>
             ))}
