@@ -31,8 +31,7 @@ const PDFTableComponent = () => {
   const [invoiceSoldTo, setInvoiceSoldTo] = useState("");
   const [totalPagesRcvd, setTotalPagesRcvd] = useState("");
   const [totalPagesInInvoice, setTotalPagesInInvoice] = useState("");
-  const [totalPagesInInvoiceFromGlobal, setTotalPagesInInvoiceFromGlobal] =
-    useState("");
+  const [totalPagesInInvoiceFromGlobal, setTotalPagesInInvoiceFromGlobal] = useState("");
   const [vendorNamesSource, setvendorNamesSource] = useState("");
   const [totalPagesProcessed, setTotalPagesProcessed] = useState("");
   const [humanVerificationReqd, setHumanVerificationReqd] = useState("");
@@ -41,6 +40,7 @@ const PDFTableComponent = () => {
   const [invoiceTaxes, setInvoiceTaxes] = useState([]);
   const [failedReasons, setFailedReasons] = useState([]);
   const [verdict, setVerdict] = useState("");
+  const [concerns, setConcerns] = useState([])
   const [loading, setLoading] = useState(false);
   const [totalInvoices, setTotalInvoices] = useState(0);
   const [newPage, setNewpage] = useState(0);
@@ -141,6 +141,7 @@ const PDFTableComponent = () => {
         setInvoiceTaxes(response.data.response.invoice_taxes);
         setVerdict(response.data.response.verdict);
         setFailedReasons(response.data.response.failed_reasons);
+        setConcerns(response.data.response.concerns)
         setLoading(false);
       })
       .catch((error) => {
@@ -222,6 +223,7 @@ const PDFTableComponent = () => {
                 invoiceTaxes={invoiceTaxes}
                 verdict={verdict}
                 failedReasons={failedReasons}
+                concerns= {concerns}
               />
             </div>
             <span className="my-4 mx-2">

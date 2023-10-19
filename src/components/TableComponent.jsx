@@ -43,6 +43,7 @@ const Table = ({
   invoiceDiscount,
   failedReasons,
   verdict,
+  concerns
 }) => {
   const [showTable, setShowTable] = useState(false);
   const [showInvoiceTable, setShowInvoiceTable] = useState(false);
@@ -137,7 +138,7 @@ const Table = ({
               {Object.keys(data).map((key, rowIndex) => (
                 <tr key={rowIndex}>
                   {headers.map((header, colIndex) => (
-                    <td data-bs-toggle="tooltip" data-bs-placement="top" title={data[key][header]?.confidence} key={colIndex}>{data[key][header].text}
+                    <td style={{backgroundColor: `${data[key][header]?.confidence<80?"#A9A9A9":null}`}} data-bs-toggle="tooltip" data-bs-placement="top" title={data[key][header]?.confidence} key={colIndex}>{data[key][header].text}
                     <Tooltip id={colIndex}>{data[key][header]?.confidence}</Tooltip></td>
                   ))}
                 </tr>
@@ -180,6 +181,26 @@ const Table = ({
                   Verdict
                 </th>
                 <td>{verdict}</td>
+              </tr>
+                <tr>
+                <th
+                  style={{
+                    width: "200px",
+                    backgroundColor: "#FFF2CD",
+                    textTransform: "capitalize",
+                  }}
+                >
+                  Concerns
+                </th>
+                <td>
+                  <ul>
+                    {concerns
+                      ? concerns.map((tax, index) => (
+                          <li key={index}>{tax}</li>
+                        ))
+                      : ""}
+                  </ul>
+                </td>
               </tr>
               <tr>
                 <th
