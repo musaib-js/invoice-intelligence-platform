@@ -71,7 +71,7 @@ const Table = ({
             setShowInvoiceTable(false);
           }}
         >
-          Meta Data
+          Raw Metadata
         </div>
         <button
           className="border w-100 p-2"
@@ -86,7 +86,7 @@ const Table = ({
             setShowMeta(false);
           }}
         >
-          Table
+          Raw Table
         </button>
         <button
           className="border w-100 p-2"
@@ -101,7 +101,7 @@ const Table = ({
             setShowMeta(false);
           }}
         >
-          Invoice Table
+          Processed Table
         </button>
       </div>
       {showTable ? (
@@ -166,6 +166,18 @@ const Table = ({
                   Invoice Number
                 </th>
                 <td>{invoiceNum}</td>
+              </tr>
+              <tr>
+                <th
+                  style={{
+                    width: "200px",
+                    backgroundColor: "#FFF2CD",
+                    textTransform: "capitalize",
+                  }}
+                >
+                  Verdict
+                </th>
+                <td>{verdict}</td>
               </tr>
               <tr>
                 <th
@@ -423,18 +435,7 @@ const Table = ({
                 </th>
                 <td>{invoiceTotalFromtable}</td>
               </tr>
-              <tr>
-                <th
-                  style={{
-                    width: "200px",
-                    backgroundColor: "#FFF2CD",
-                    textTransform: "capitalize",
-                  }}
-                >
-                  Verdict
-                </th>
-                <td>{verdict}</td>
-              </tr>
+              
             </tbody>
           </table>
         </div>
