@@ -8,6 +8,7 @@ import {
 } from "react-bootstrap-icons";
 import axios from "axios";
 import { ColorRing } from "react-loader-spinner";
+import { Scrollbars } from 'react-custom-scrollbars-2';
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.js",
   import.meta.url
@@ -31,7 +32,8 @@ const PDFTableComponent = () => {
   const [invoiceSoldTo, setInvoiceSoldTo] = useState("");
   const [totalPagesRcvd, setTotalPagesRcvd] = useState("");
   const [totalPagesInInvoice, setTotalPagesInInvoice] = useState("");
-  const [totalPagesInInvoiceFromGlobal, setTotalPagesInInvoiceFromGlobal] = useState("");
+  const [totalPagesInInvoiceFromGlobal, setTotalPagesInInvoiceFromGlobal] =
+    useState("");
   const [vendorNamesSource, setvendorNamesSource] = useState("");
   const [totalPagesProcessed, setTotalPagesProcessed] = useState("");
   const [humanVerificationReqd, setHumanVerificationReqd] = useState("");
@@ -40,12 +42,15 @@ const PDFTableComponent = () => {
   const [invoiceTaxes, setInvoiceTaxes] = useState([]);
   const [failedReasons, setFailedReasons] = useState([]);
   const [verdict, setVerdict] = useState("");
-  const [concerns, setConcerns] = useState([])
+  const [concerns, setConcerns] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalInvoices, setTotalInvoices] = useState(0);
   const [newPage, setNewpage] = useState(0);
   const [tempValue, setTempValue] = useState(1);
   const [invoiceTableData, setInvoiceTableData] = useState([]);
+  const [searchInput, setSearchInput] = useState("");
+  const [invoiceNumArray, setInvoiceNumArray] = useState([]);
+  const [searchResultVisible, setSearchResutsVisible] = useState(false)
 
   useEffect(() => {
     if (pageNumber === 0) {
@@ -141,7 +146,7 @@ const PDFTableComponent = () => {
         setInvoiceTaxes(response.data.response.invoice_taxes);
         setVerdict(response.data.response.verdict);
         setFailedReasons(response.data.response.failed_reasons);
-        setConcerns(response.data.response.concerns)
+        setConcerns(response.data.response.concerns);
         setLoading(false);
       })
       .catch((error) => {
@@ -157,6 +162,36 @@ const PDFTableComponent = () => {
   const handleBlur = () => {
     setPageNumber(tempValue);
   };
+
+  const handleSearchInputChange = (event) => {
+    const inputValue = event.target.value;
+    setSearchInput(inputValue);
+  };
+  const handleBlurSearch = () =>{
+    setInvoiceNumArray([])
+  }
+  useEffect(() => {
+    console.log("the url is");
+    const payload = {
+      invoice_name: searchInput,
+    };
+    if (searchInput != "") {
+      const apiUrl = `${process.env.REACT_APP_SEARCH_URL}`;
+      axios
+        .post(apiUrl, payload)
+        .then((response) => {
+          console.log(response.data.matching_invoice_numbers);
+          setSearchResutsVisible(true)
+          setInvoiceNumArray(response.data.matching_invoice_numbers);
+        })
+        .catch((error) => {
+          console.log("the error is", error);
+        });
+    }
+    else{
+      setInvoiceNumArray([]);
+    }
+  }, [searchInput]);
   return (
     <Container className="mt-4">
       {loading ? (
@@ -179,6 +214,50 @@ const PDFTableComponent = () => {
       ) : (
         <Row>
           <Col md={6}>
+            <div className="col-md-8 mb-4">
+              <div className="input-group" style={{width:"500px"}}>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search Invoice"
+                  aria-label="Search Invoice"
+                  aria-describedby="basic-addon1"
+                  onChange={handleSearchInputChange}
+                  // onBlur={handleBlurSearch}
+                  value={searchInput}
+                />
+                <span className="input-group-text" id="basic-addon1">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="bi bi-search"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"></path>
+                  </svg>
+                </span>
+              </div>
+              {invoiceNumArray.length>0 && searchResultVisible ? (
+                <Scrollbars id="suggestions" style={{width:"500px", position: "absolute", zIndex: 1, background: "white", border: "1px solid #ccc", borderRadius: "8px", maxHeight: "150px", scrollbarWidth: "thin", scrollbarColor: "#FDFFD0", paddingRight: "12px",}}>
+                  <div style={{height: "30px"}} >Matching Invoice Numbers</div>
+                  <hr className="featurette-divider mt-0 mb-0"></hr>
+                {invoiceNumArray.map((number) => (
+                  <>
+                  <div style={{height: "30px"}} key={number} onClick={()=>
+                    {
+                      setPageNumber(number)
+                      setSearchResutsVisible(false)
+                    }}>
+                      Invoice Number: {number}</div>
+                  <hr className="featurette-divider mt-0 mb-0"></hr>
+                  </>
+                ))}
+              </Scrollbars>
+              ):null}
+              
+            </div>
             <div
               style={{
                 height: "530px",
@@ -198,7 +277,7 @@ const PDFTableComponent = () => {
             <div className="mb-4" style={{ height: "530px" }}>
               <TableComponent
                 data={tableData}
-                invoiceTableData = {invoiceTableData}                
+                invoiceTableData={invoiceTableData}
                 invoiceBalance={invoiceBalance}
                 invoiceDate={invoiceDate}
                 invoiceNum={invoiceNum}
@@ -223,7 +302,7 @@ const PDFTableComponent = () => {
                 invoiceTaxes={invoiceTaxes}
                 verdict={verdict}
                 failedReasons={failedReasons}
-                concerns= {concerns}
+                concerns={concerns}
               />
             </div>
             <span className="my-4 mx-2">
