@@ -168,7 +168,9 @@ const PDFTableComponent = () => {
     setSearchInput(inputValue);
   };
   const handleBlurSearch = () => {
-    setInvoiceNumArray([]);
+    setTimeout(() => {
+      setSearchResutsVisible(false);
+    }, 100);
   };
   useEffect(() => {
     console.log("the url is");
@@ -251,7 +253,7 @@ const PDFTableComponent = () => {
                 {invoiceNumArray.map((number) => (
                   <>
                     <div
-                      style={{ height: "30px" }}
+                      style={{ height: "30px", cursor: "pointer" }}
                       key={number}
                       onClick={() => {
                         setPageNumber(number);
