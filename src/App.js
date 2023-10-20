@@ -5,7 +5,7 @@ import Scrollbars from "react-custom-scrollbars-2";
 function App() {
   return (
     <div className="App">
-      <nav
+      {/* <nav
         className="navbar p-3 shadow-sm"
         style={{ backgroundColor: "#FDFFD0", marginBottom: "55px" }}
       >
@@ -17,7 +17,7 @@ function App() {
             Invoice Intelligence Platform
           </span>
         </div>
-      </nav>
+      </nav> */}
       <PDFTableComponent />
 
       <hr className="featurette-divider mb-0"></hr>
