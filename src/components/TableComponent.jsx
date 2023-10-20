@@ -494,8 +494,8 @@ const Table = ({
             {Object.keys(invoiceTableData).map((key, rowIndex) => (
               <tr key={rowIndex}>
                 {invTableheaders.map((header, colIndex) => (
-                  <td data-bs-toggle="tooltip" data-bs-placement="top" title={invoiceTableData[key][header].confidence} key={colIndex}>{invoiceTableData[key][header].text}
-                   <Tooltip id={colIndex}>{invoiceTableData[key][header].confidence}</Tooltip></td>
+                  <td style={{backgroundColor: `${invoiceTableData[key][header]?.confidence<80?"#A9A9A9":null}`}} data-bs-toggle="tooltip" data-bs-placement="top" title={invoiceTableData[key][header].confidence} key={colIndex}>{invoiceTableData[key][header].text}
+                   <Tooltip style={{borderRadius: "3px", padding: "3px"}} id={colIndex}>{invoiceTableData[key][header].confidence}</Tooltip></td>
                  
                 ))}
               </tr>

@@ -206,7 +206,7 @@ const PDFTableComponent = () => {
           >
             Invoice Intelligence Platform
           </span>
-          <div className="col-md-8" style={{width: "510px"}}>
+          {/* <div className="col-md-8" style={{width: "510px"}}>
             <div className="input-group" style={{ width: "500px" }}>
               <input
                 type="text"
@@ -268,7 +268,7 @@ const PDFTableComponent = () => {
                 ))}
               </Scrollbars>
             ) : null}
-          </div>
+          </div> */}
         </div>
       </nav>
       <Container className="mt-4">
