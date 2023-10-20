@@ -1,5 +1,6 @@
 import "./App.css";
 import PDFTableComponent from "./components/PDFTableComponent";
+import Scrollbars from "react-custom-scrollbars-2";
 
 function App() {
   return (

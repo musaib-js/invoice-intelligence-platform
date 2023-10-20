@@ -212,6 +212,7 @@ const PDFTableComponent = () => {
           ]}
         />
       ) : (
+        <>
         <Row>
           <Col md={6}>
             <div className="col-md-8 mb-4">
@@ -248,6 +249,7 @@ const PDFTableComponent = () => {
                   <div style={{height: "30px"}} key={number} onClick={()=>
                     {
                       setPageNumber(number)
+                      setTempValue(number)
                       setSearchResutsVisible(false)
                     }}>
                       Invoice Number: {number}</div>
@@ -343,6 +345,7 @@ const PDFTableComponent = () => {
             </span>
           </Col>
         </Row>
+        </>
       )}
     </Container>
   );
