@@ -138,8 +138,8 @@ const Table = ({
               {Object.keys(data).map((key, rowIndex) => (
                 <tr key={rowIndex}>
                   {headers.map((header, colIndex) => (
-                    <td style={{backgroundColor: `${data[key][header]?.confidence<80?"#A9A9A9":null}`}} data-bs-toggle="tooltip" data-bs-placement="top" title={data[key][header]?.confidence} key={colIndex}>{data[key][header].text}
-                    <Tooltip id={colIndex}>{data[key][header]?.confidence}</Tooltip></td>
+                    <td style={{backgroundColor: `${data[key][header]?.confidence<80?"#A9A9A9":null}`}} data-bs-toggle="tooltip" data-bs-placement="top" title={`Confidence: ${data[key][header]?.confidence}`} key={colIndex}>{data[key][header].text}
+                    <Tooltip id={colIndex}/></td>
                   ))}
                 </tr>
               ))}
@@ -494,8 +494,8 @@ const Table = ({
             {Object.keys(invoiceTableData).map((key, rowIndex) => (
               <tr key={rowIndex}>
                 {invTableheaders.map((header, colIndex) => (
-                  <td style={{backgroundColor: `${invoiceTableData[key][header]?.confidence<80?"#A9A9A9":null}`}} data-bs-toggle="tooltip" data-bs-placement="top" title={invoiceTableData[key][header].confidence} key={colIndex}>{invoiceTableData[key][header].text}
-                   <Tooltip style={{borderRadius: "3px", padding: "3px"}} id={colIndex}>{invoiceTableData[key][header].confidence}</Tooltip></td>
+                  <td style={{backgroundColor: `${invoiceTableData[key][header]?.confidence<80?"#A9A9A9":null}`}} data-bs-toggle="tooltip" data-bs-placement="top" title={`Confidence: ${invoiceTableData[key][header].confidence}`} key={colIndex}>{invoiceTableData[key][header].text}
+                   <Tooltip id={colIndex}/></td>
                  
                 ))}
               </tr>
