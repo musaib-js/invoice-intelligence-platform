@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Resizable } from "react-resizable";
+import { Tooltip } from "react-tooltip";
 
 const ResizableCell = ({ children, width, ...rest }) => {
   return (
@@ -42,6 +43,7 @@ const Table = ({
   invoiceDiscount,
   failedReasons,
   verdict,
+  concerns
 }) => {
   const [showTable, setShowTable] = useState(false);
   const [showInvoiceTable, setShowInvoiceTable] = useState(false);
@@ -136,7 +138,8 @@ const Table = ({
               {Object.keys(data).map((key, rowIndex) => (
                 <tr key={rowIndex}>
                   {headers.map((header, colIndex) => (
-                    <td key={colIndex}>{data[key][header]}</td>
+                    <td style={{backgroundColor: `${data[key][header]?.confidence<80?"#A9A9A9":null}`}} data-bs-toggle="tooltip" data-bs-placement="top" title={`Confidence: ${data[key][header]?.confidence}`} key={colIndex}>{data[key][header].text}
+                    <Tooltip id={colIndex}/></td>
                   ))}
                 </tr>
               ))}
@@ -178,6 +181,26 @@ const Table = ({
                   Verdict
                 </th>
                 <td>{verdict}</td>
+              </tr>
+                <tr>
+                <th
+                  style={{
+                    width: "200px",
+                    backgroundColor: "#FFF2CD",
+                    textTransform: "capitalize",
+                  }}
+                >
+                  Concerns
+                </th>
+                <td>
+                  <ul>
+                    {concerns
+                      ? concerns.map((tax, index) => (
+                          <li key={index}>{tax}</li>
+                        ))
+                      : ""}
+                  </ul>
+                </td>
               </tr>
               <tr>
                 <th
@@ -471,7 +494,9 @@ const Table = ({
             {Object.keys(invoiceTableData).map((key, rowIndex) => (
               <tr key={rowIndex}>
                 {invTableheaders.map((header, colIndex) => (
-                  <td key={colIndex}>{invoiceTableData[key][header]}</td>
+                  <td style={{backgroundColor: `${invoiceTableData[key][header]?.confidence<80?"#A9A9A9":null}`}} data-bs-toggle="tooltip" data-bs-placement="top" title={`Confidence: ${invoiceTableData[key][header].confidence}`} key={colIndex}>{invoiceTableData[key][header].text}
+                   <Tooltip id={colIndex}/></td>
+                 
                 ))}
               </tr>
             ))}
