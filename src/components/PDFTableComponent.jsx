@@ -51,6 +51,8 @@ const PDFTableComponent = () => {
   const [searchInput, setSearchInput] = useState("");
   const [invoiceNumArray, setInvoiceNumArray] = useState([]);
   const [searchResultVisible, setSearchResutsVisible] = useState(false);
+  const [extraChargesAdded, setExtraChargesAdded] = useState([])
+  const [extraDiscountsAdded, setExtraDiscountsAdded] = useState([])
 
   useEffect(() => {
     if (pageNumber === 0) {
@@ -147,6 +149,8 @@ const PDFTableComponent = () => {
         setVerdict(response.data.response.verdict);
         setFailedReasons(response.data.response.failed_reasons);
         setConcerns(response.data.response.concerns);
+        setExtraChargesAdded(response.data.response.extra_charges_added)
+        setExtraDiscountsAdded(response.data.response.extra_discounts_added)
         setLoading(false);
       })
       .catch((error) => {
@@ -340,6 +344,8 @@ const PDFTableComponent = () => {
                     verdict={verdict}
                     failedReasons={failedReasons}
                     concerns={concerns}
+                    extraChargesAdded={extraChargesAdded}
+                    extraDiscountsAdded={extraDiscountsAdded}
                   />
                 </div>
                 <span className="my-4 mx-2">

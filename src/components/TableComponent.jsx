@@ -43,7 +43,9 @@ const Table = ({
   invoiceDiscount,
   failedReasons,
   verdict,
-  concerns
+  concerns,
+  extraChargesAdded,
+  extraDiscountsAdded,
 }) => {
   const [showTable, setShowTable] = useState(false);
   const [showInvoiceTable, setShowInvoiceTable] = useState(false);
@@ -281,6 +283,46 @@ const Table = ({
                   Invoice Total
                 </th>
                 <td>{invoiceTotal}</td>
+              </tr>
+              <tr>
+                <th
+                  style={{
+                    width: "200px",
+                    backgroundColor: "#FFF2CD",
+                    textTransform: "capitalize",
+                  }}
+                >
+                  Extra Charges Added
+                </th>
+                <td>
+                  <ul style={{ textTransform: "capitalize" }}>
+                    {extraChargesAdded
+                      ? extraChargesAdded.map((charge, index) => (
+                          <li key={index}>{charge}</li>
+                        ))
+                      : ""}
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <th
+                  style={{
+                    width: "200px",
+                    backgroundColor: "#FFF2CD",
+                    textTransform: "capitalize",
+                  }}
+                >
+                  Extra Discounts Added
+                </th>
+                <td>
+                  <ul style={{ textTransform: "capitalize" }}>
+                    {extraDiscountsAdded
+                      ? extraDiscountsAdded.map((discount, index) => (
+                          <li key={index}>{discount}</li>
+                        ))
+                      : ""}
+                  </ul>
+                </td>
               </tr>
               <tr>
                 <th
