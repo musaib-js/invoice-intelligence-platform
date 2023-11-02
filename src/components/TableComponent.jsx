@@ -63,7 +63,7 @@ const Table = ({
     return <p>Invoice structure is not compatible for detection.</p>;
   }
 
-  const headers = Object.keys(data[Object.keys(data)[1]]);
+  const headers = Object.keys(data[Object.keys(data)[0]]);
   console.log("The data is", data);
   // console.log("The headers are", headers);
 
@@ -769,9 +769,9 @@ const Table = ({
             </table>
           </div>
           <div className="d-flex justify-content-end my-2 mx-2 mb-4">
-            <button className="btn mx-1 btn-sm btn-primary">Accept</button>
-            <button className="btn mx-1 btn-sm btn-danger">Reject</button>
-            <button className="btn mx-1 btn-sm btn-warning">Save</button>
+            <button className="shadow-lg btn mx-1 btn-sm" style={{backgroundColor: "rgb(255, 242, 205)"}}>Accept</button>
+            <button className="shadow-lg btn mx-1 btn-sm btn-danger">Reject</button>
+            <button className="shadow-lg btn mx-1 btn-sm btn-warning">Save</button>
           </div>
         </>
       ) : null}
