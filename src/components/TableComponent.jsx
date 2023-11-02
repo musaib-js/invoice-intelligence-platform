@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Resizable } from "react-resizable";
 import { Tooltip } from "react-tooltip";
+import axios from "axios";
+import {toast, ToastContainer} from "react-toastify";
 
 const ResizableCell = ({ children, width, ...rest }) => {
   return (
@@ -50,22 +52,78 @@ const Table = ({
   const [showTable, setShowTable] = useState(false);
   const [showInvoiceTable, setShowInvoiceTable] = useState(false);
   const [showMeta, setShowMeta] = useState(true);
-
+  const [showHumanVerification, setShowHumanVerification] = useState(false);
+  const [rowDataForExtendedPrice, setRowDataForExtendedPrice] = useState([]);
+  const [tempData, setTempData] = useState([]);
+  const [changed, setChanged] = useState(false);
+  const [rowId, setRowId] = useState(-1);
+  const [editableRow, setEditableRow] = useState(-1);
+  const [changedInputs, setChangedInputs] = useState([]);
   if (!data || Object.keys(data).length === 0) {
     return <p>Invoice structure is not compatible for detection.</p>;
   }
 
-  const headers = Object.keys(data[Object.keys(data)[0]]);
-  console.log(headers);
+  const headers = Object.keys(data[Object.keys(data)[1]]);
+  console.log("The data is", data);
+  // console.log("The headers are", headers);
 
-  const invTableheaders = Object.keys(invoiceTableData[Object.keys(invoiceTableData)[0]]);
+  const invTableheaders = Object.keys(
+    invoiceTableData[Object.keys(invoiceTableData)[0]]
+  );
+  const invNewTableheaders = Object.values(invoiceTableData[0]).map(
+    (entry) => entry.text
+  );
+  const dataForEditabletable = invoiceTableData.slice(
+    1,
+    invoiceTableData.length
+  );
+  console.log("inv table data", invoiceTableData);
+  console.log("The table data edit are", dataForEditabletable);
+
+  const calculateExtendedPrice = async (rowData) => {
+    console.log("the data in calc", rowData);
+    const extendedPriceColIndex = invNewTableheaders.findIndex((header) => header === "Extended Price");
+    console.log("The index is", extendedPriceColIndex)
+    const rowDataObject = {};
+    rowData.forEach((entry) => {
+      const key = Object.keys(entry)[0];
+      const value = entry[key];
+      rowDataObject[key] = value;
+    });
+    console.log("The changed inputs are", changedInputs)
+    const payload = {
+      row_id: rowId,
+      row_data: rowDataObject,
+    };
+    console.log("The payload is", payload);
+    await axios.post(`${process.env.REACT_APP_EXTENDED_PRICE}`, payload)
+    .then((response)=>{
+      console.log("the respons is", response)
+      dataForEditabletable[rowId][extendedPriceColIndex].text = response.data["Extended Price"].text;
+      dataForEditabletable[rowId][extendedPriceColIndex].confidence = response.data["Extended Price"].confidence;
+      changedInputs.forEach((entry)=>{
+        dataForEditabletable[rowId][entry.indexId].text = entry.value;
+      })
+      toast.success("Extended Price Calculated Successfully")
+      setEditableRow(-1)
+      setRowDataForExtendedPrice([]);
+      setTempData([]);
+      setRowId(-1);
+      setChanged(false);
+      setChangedInputs([])
+    })
+    .catch((error)=>{
+      toast.error(error)
+    })
+  };
+  
   return (
     <>
       <div className="d-flex justify-content-center border my-2">
         <div
           className="border w-100 p-2"
           style={{
-            backgroundColor: showTable ? "white" : "#FDFFD0",
+            backgroundColor: showMeta ? "#FDFFD0" : "white",
             textTransform: "capitalize",
             cursor: "pointer",
           }}
@@ -73,6 +131,7 @@ const Table = ({
             setShowMeta(true);
             setShowTable(false);
             setShowInvoiceTable(false);
+            setShowHumanVerification(false);
           }}
         >
           Raw Metadata
@@ -88,6 +147,7 @@ const Table = ({
             setShowTable(true);
             setShowInvoiceTable(false);
             setShowMeta(false);
+            setShowHumanVerification(false);
           }}
         >
           Raw Table
@@ -103,9 +163,26 @@ const Table = ({
             setShowInvoiceTable(true);
             setShowTable(false);
             setShowMeta(false);
+            setShowHumanVerification(false);
           }}
         >
           Processed Table
+        </button>
+        <button
+          className="border w-100 p-2"
+          style={{
+            backgroundColor: showHumanVerification ? "#FDFFD0" : "white",
+            textTransform: "capitalize",
+            cursor: "pointer",
+          }}
+          onClick={() => {
+            setShowHumanVerification(true);
+            setShowInvoiceTable(false);
+            setShowTable(false);
+            setShowMeta(false);
+          }}
+        >
+          Human Verification
         </button>
       </div>
       {showTable ? (
@@ -140,8 +217,20 @@ const Table = ({
               {Object.keys(data).map((key, rowIndex) => (
                 <tr key={rowIndex}>
                   {headers.map((header, colIndex) => (
-                    <td style={{backgroundColor: `${data[key][header]?.confidence<80?"#A9A9A9":null}`}} data-bs-toggle="tooltip" data-bs-placement="top" title={`Confidence: ${data[key][header]?.confidence}`} key={colIndex}>{data[key][header].text}
-                    <Tooltip id={colIndex}/></td>
+                    <td
+                      style={{
+                        backgroundColor: `${
+                          data[key][header]?.confidence < 80 ? "#A9A9A9" : null
+                        }`,
+                      }}
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      title={`Confidence: ${data[key][header]?.confidence}`}
+                      key={colIndex}
+                    >
+                      {data[key][header].text}
+                      <Tooltip id={colIndex} />
+                    </td>
                   ))}
                 </tr>
               ))}
@@ -184,7 +273,7 @@ const Table = ({
                 </th>
                 <td>{verdict}</td>
               </tr>
-                <tr>
+              <tr>
                 <th
                   style={{
                     width: "200px",
@@ -197,9 +286,7 @@ const Table = ({
                 <td>
                   <ul>
                     {concerns
-                      ? concerns.map((tax, index) => (
-                          <li key={index}>{tax}</li>
-                        ))
+                      ? concerns.map((tax, index) => <li key={index}>{tax}</li>)
                       : ""}
                   </ul>
                 </td>
@@ -296,8 +383,8 @@ const Table = ({
                 </th>
                 <td>
                   <ul style={{ textTransform: "capitalize" }}>
-                    {extraChargesAdded
-                      ? extraChargesAdded.map((charge, index) => (
+                    {extraChargesAdded!="NA"
+                      ? extraChargesAdded?.map((charge, index) => (
                           <li key={index}>{charge}</li>
                         ))
                       : ""}
@@ -316,7 +403,7 @@ const Table = ({
                 </th>
                 <td>
                   <ul style={{ textTransform: "capitalize" }}>
-                    {extraDiscountsAdded
+                    {extraDiscountsAdded != "NA"
                       ? extraDiscountsAdded.map((discount, index) => (
                           <li key={index}>{discount}</li>
                         ))
@@ -500,51 +587,193 @@ const Table = ({
                 </th>
                 <td>{invoiceTotalFromtable}</td>
               </tr>
-              
             </tbody>
           </table>
         </div>
       ) : showInvoiceTable ? (
         <div
-        style={{
-          width: width || "100%",
-          height: "471px",
-          overflowX: "scroll",
-          overflowY: "scroll",
-        }}
-      >
-        <table className="table table-striped table-responsive">
-          <thead>
-            <tr>
-              {invTableheaders.map((header, index) => (
-                <th
-                  style={{
-                    backgroundColor: "#FFF2CD",
-                    textTransform: "capitalize",
-                  }}
-                  key={index}
-                  className="resizable-header"
-                >
-                  <ResizableCell width={100}>
-                    <div>{header}</div>
-                  </ResizableCell>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {Object.keys(invoiceTableData).map((key, rowIndex) => (
-              <tr key={rowIndex}>
-                {invTableheaders.map((header, colIndex) => (
-                  <td style={{backgroundColor: `${invoiceTableData[key][header]?.confidence<80?"#A9A9A9":null}`}} data-bs-toggle="tooltip" data-bs-placement="top" title={`Confidence: ${invoiceTableData[key][header].confidence}`} key={colIndex}>{invoiceTableData[key][header].text}
-                   <Tooltip id={colIndex}/></td>
-                 
+          style={{
+            width: width || "100%",
+            height: "471px",
+            overflowX: "scroll",
+            overflowY: "scroll",
+          }}
+        >
+          <table className="table table-striped table-responsive">
+            <thead>
+              <tr>
+                {invTableheaders.map((header, index) => (
+                  <th
+                    style={{
+                      backgroundColor: "#FFF2CD",
+                      textTransform: "capitalize",
+                    }}
+                    key={index}
+                    className="resizable-header"
+                  >
+                    <ResizableCell width={100}>
+                      <div>{header}</div>
+                    </ResizableCell>
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {Object.keys(invoiceTableData).map((key, rowIndex) => (
+                <tr key={rowIndex}>
+                  {invTableheaders.map((header, colIndex) => (
+                    <td
+                      style={{
+                        backgroundColor: `${
+                          invoiceTableData[key][header]?.confidence < 80
+                            ? "#A9A9A9"
+                            : null
+                        }`,
+                      }}
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      title={`Confidence: ${invoiceTableData[key][header].confidence}`}
+                      key={colIndex}
+                    >
+                      {invoiceTableData[key][header].text}
+                      <Tooltip id={colIndex} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : showHumanVerification ? (
+        <>
+          <div
+            style={{
+              width: width || "100%",
+              height: "471px",
+              overflowX: "scroll",
+              overflowY: "scroll",
+            }}
+          >
+            <table className="table table-striped table-responsive">
+              <thead>
+                <tr>
+                  {invNewTableheaders.map((header, index) => (
+                    <th
+                    style={{
+                      backgroundColor: "#FFF2CD",
+                      textTransform: "capitalize",
+                      verticalAlign: "middle", 
+                    }}
+                    key={index}
+                    className="resizable-header"
+                  >
+                    <ResizableCell style={{ width: 150 }}>
+                      <div style={{ lineHeight: "1.5", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {header}
+                      </div>
+                    </ResizableCell>
+                  </th>
+                  
+                  ))}
+                  <th
+                    style={{
+                      backgroundColor: "#FFF2CD",
+                      textTransform: "capitalize",
+                       verticalAlign: "middle", 
+                    }}
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.keys(dataForEditabletable).map((key, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {invNewTableheaders.map((header, colIndex) => (
+                      <td
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title={`Confidence: ${dataForEditabletable[key][colIndex].confidence}`}
+                        key={colIndex}
+                      >
+                        {editableRow === key ? (
+                          <input
+                            className="form-control"
+                            value={
+                              changed
+                                ? rowDataForExtendedPrice.header
+                                : dataForEditabletable[key][colIndex].text
+                            }
+                            disabled={
+                              header === "Extended Price" ? true : false
+                            }
+                            onChange={(e) => {
+                              setChanged(true);
+                              setTempData({
+                                [header]: e.target.value,
+                                indexId: colIndex,
+                              });
+                              setRowId(key);
+                            }}
+                            onBlur={(e) => {
+                              setRowDataForExtendedPrice([
+                                ...rowDataForExtendedPrice,
+                                tempData,
+                              ]);
+                              setChangedInputs([...changedInputs, {indexId: colIndex, value: e.target.value}]);
+                              console.log("the col index is", colIndex)
+                            }}
+                          ></input>
+                        ) : (
+                          <>
+                            {dataForEditabletable[key][colIndex].text}
+                            <Tooltip id={colIndex} />
+                          </>
+                        )}
+                      </td>
+                    ))}
+                    <td>
+                      {editableRow === key ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="26"
+                          height="26"
+                          fill="currentColor"
+                          class="bi bi-check"
+                          viewBox="0 0 16 16"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => {calculateExtendedPrice(rowDataForExtendedPrice);}}
+                        >
+                          <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
+                        </svg>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          fill="currentColor"
+                          class="bi bi-pen"
+                          viewBox="0 0 16 16"
+                          onClick={() => {
+                            setEditableRow(key);
+                          }}
+                          style={{ cursor: "pointer" }}
+                        >
+                          <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
+                        </svg>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="d-flex justify-content-end my-2 mx-2 mb-4">
+            <button className="btn mx-1 btn-sm btn-primary">Accept</button>
+            <button className="btn mx-1 btn-sm btn-danger">Reject</button>
+            <button className="btn mx-1 btn-sm btn-warning">Save</button>
+          </div>
+        </>
       ) : null}
     </>
   );
