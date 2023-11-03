@@ -51,6 +51,8 @@ const PDFTableComponent = () => {
   const [searchInput, setSearchInput] = useState("");
   const [invoiceNumArray, setInvoiceNumArray] = useState([]);
   const [searchResultVisible, setSearchResutsVisible] = useState(false);
+  const [extraChargesAdded, setExtraChargesAdded] = useState([])
+  const [extraDiscountsAdded, setExtraDiscountsAdded] = useState([])
 
   useEffect(() => {
     if (pageNumber === 0) {
@@ -147,6 +149,8 @@ const PDFTableComponent = () => {
         setVerdict(response.data.response.verdict);
         setFailedReasons(response.data.response.failed_reasons);
         setConcerns(response.data.response.concerns);
+        setExtraChargesAdded(response.data.response.extra_charges_added)
+        setExtraDiscountsAdded(response.data.response.extra_discounts_added)
         setLoading(false);
       })
       .catch((error) => {
@@ -206,7 +210,7 @@ const PDFTableComponent = () => {
           >
             Invoice Intelligence Platform
           </span>
-          {/* <div className="col-md-8" style={{width: "510px"}}>
+          <div className="col-md-8" style={{width: "510px"}}>
             <div className="input-group" style={{ width: "500px" }}>
               <input
                 type="text"
@@ -256,19 +260,25 @@ const PDFTableComponent = () => {
                       style={{ height: "30px", cursor: "pointer" }}
                       key={number}
                       onClick={() => {
-                        setPageNumber(number);
-                        setTempValue(number);
+                        setPageNumber(number.invoice_number);
+                        setTempValue(number.invoice_number);
                         setSearchResutsVisible(false);
                       }}
+                      className="d-flex justify-content-between"
                     >
-                      Invoice Number: {number}
+                      <div className="mx-2 text-gray text-sm">
+                      Invoice Number: {number.invoice_number}
+                      </div>
+                      <div className="mx-2 mt-3 text-muted fst-italic" style={{ fontSize: '10px' }}>
+                      Score: {number.matching_score}
+                      </div>
                     </div>
                     <hr className="featurette-divider mt-0 mb-0"></hr>
                   </>
                 ))}
               </Scrollbars>
             ) : null}
-          </div> */}
+          </div>
         </div>
       </nav>
       <Container className="mt-4">
@@ -307,41 +317,7 @@ const PDFTableComponent = () => {
                     allow="autoplay"
                   ></iframe>
                 </div>
-              </Col>
-              <Col md={6}>
-                <div className="mb-4" style={{ height: "530px" }}>
-                  <TableComponent
-                    data={tableData}
-                    invoiceTableData={invoiceTableData}
-                    invoiceBalance={invoiceBalance}
-                    invoiceDate={invoiceDate}
-                    invoiceNum={invoiceNum}
-                    invoicePaymentTerms={invoicePaymentTerms}
-                    invoiceBillTo={invoiceBillTo}
-                    invoiceShipTo={invoiceShipTo}
-                    invoiceRoute={invoiceRoute}
-                    dueDate={dueDate}
-                    invoiceTotal={invoiceTotal}
-                    invoiceRemitTo={invoiceRemitTo}
-                    invoiceGlobalAddresses={invoiceGlobalAddresses}
-                    invoiceSoldTo={invoiceSoldTo}
-                    totalPagesRcvd={totalPagesRcvd}
-                    totalPagesInInvoice={totalPagesInInvoice}
-                    totalPagesInInvoiceFromGlobal={
-                      totalPagesInInvoiceFromGlobal
-                    }
-                    vendorName={vendorName}
-                    vendorNamesSource={vendorNamesSource}
-                    totalPagesProcessed={totalPagesProcessed}
-                    humanVerificationReqd={humanVerificationReqd}
-                    invoiceTotalFromtable={invoiceTotalFromtable}
-                    invoiceDiscount={invoiceDiscount}
-                    invoiceTaxes={invoiceTaxes}
-                    verdict={verdict}
-                    failedReasons={failedReasons}
-                    concerns={concerns}
-                  />
-                </div>
+                <div className="my-4">
                 <span className="my-4 mx-2">
                   <ArrowLeftCircleFill
                     onClick={() => {
@@ -378,6 +354,44 @@ const PDFTableComponent = () => {
                     size={40}
                   />
                 </span>
+                </div>
+              </Col>
+              <Col md={6}>
+                <div className="mb-4" style={{ height: "530px" }}>
+                  <TableComponent
+                    data={tableData}
+                    invoiceTableData={invoiceTableData}
+                    invoiceBalance={invoiceBalance}
+                    invoiceDate={invoiceDate}
+                    invoiceNum={invoiceNum}
+                    invoicePaymentTerms={invoicePaymentTerms}
+                    invoiceBillTo={invoiceBillTo}
+                    invoiceShipTo={invoiceShipTo}
+                    invoiceRoute={invoiceRoute}
+                    dueDate={dueDate}
+                    invoiceTotal={invoiceTotal}
+                    invoiceRemitTo={invoiceRemitTo}
+                    invoiceGlobalAddresses={invoiceGlobalAddresses}
+                    invoiceSoldTo={invoiceSoldTo}
+                    totalPagesRcvd={totalPagesRcvd}
+                    totalPagesInInvoice={totalPagesInInvoice}
+                    totalPagesInInvoiceFromGlobal={
+                      totalPagesInInvoiceFromGlobal
+                    }
+                    vendorName={vendorName}
+                    vendorNamesSource={vendorNamesSource}
+                    totalPagesProcessed={totalPagesProcessed}
+                    humanVerificationReqd={humanVerificationReqd}
+                    invoiceTotalFromtable={invoiceTotalFromtable}
+                    invoiceDiscount={invoiceDiscount}
+                    invoiceTaxes={invoiceTaxes}
+                    verdict={verdict}
+                    failedReasons={failedReasons}
+                    concerns={concerns}
+                    extraChargesAdded={extraChargesAdded}
+                    extraDiscountsAdded={extraDiscountsAdded}
+                  />
+                </div>
               </Col>
             </Row>
           </>
