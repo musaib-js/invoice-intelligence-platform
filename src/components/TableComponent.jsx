@@ -100,19 +100,11 @@ const Table = ({
   if (!data || Object.keys(data).length === 0) {
     return <p>Invoice structure is not compatible for detection.</p>;
   }
-  const handleDiscountChange = (e, index) => {
-    const updatedDiscounts = [...discounts];
-    updatedDiscounts[index] = e.target.value;
-    setDiscounts(updatedDiscounts);
+  const handleDiscountChange = (e) => {
+    setExtraDiscountsSum(parseFloat(e.target.value));
   };
-  const handleTaxChange = (e, index) => {
-    try {
-      const updatedTaxes = [...taxes];
-      updatedTaxes[index] = e.target.value;
-      setTaxes(updatedTaxes);
-    } catch (error) {
-      console.log("the errrrrr", error);
-    }
+  const handleTaxChange = (e) => {
+    setInvoiceTaxesSum(parseFloat(e.target.value));
   };
 
   const headers = Object.keys(data[Object.keys(data)[0]]);
@@ -878,10 +870,7 @@ const Table = ({
                 <Col xs={2}>
                   <p>Discounts</p>
                   <ListGroup>
-                    {discounts !== "NA" && discounts.length > 0 ? (
-                      discounts.map((discount, index) => (
                         <ListGroup.Item
-                          key={index}
                           onClick={() => {
                             setEditDiscount(true);
                           }}
@@ -889,28 +878,21 @@ const Table = ({
                           {editDiscount ? (
                             <input
                               // type="number"
-                              onChange={(e) => handleDiscountChange(e, index)}
+                              onChange={(e) => handleDiscountChange(e)}
                               className="form-control"
-                              value={parseFloat(discount)}
+                              value={parseFloat(extraDiscountsSum)}
                               width={"50px"}
                             />
                           ) : (
-                            discount
+                            extraDiscountsSum.toFixed(2)
                           )}
                         </ListGroup.Item>
-                      ))
-                    ) : (
-                      <ListGroup.Item>No discounts applied</ListGroup.Item>
-                    )}
                   </ListGroup>
                 </Col>
                 <Col xs={2}>
                   <p>Taxes</p>
                   <ListGroup>
-                    {taxes !== "NA" && taxes.length > 0 ? (
-                      taxes.map((tax, index) => (
-                        <ListGroup.Item
-                          key={index}
+                  <ListGroup.Item
                           onClick={() => {
                             setEditTax(true);
                           }}
@@ -918,19 +900,15 @@ const Table = ({
                           {editTax ? (
                             <input
                               // type="number"
-                              onChange={(e) => handleTaxChange(e, index)}
+                              onChange={(e) => handleTaxChange(e)}
                               className="form-control"
-                              value={parseFloat(tax)}
+                              value={parseFloat(invoiceTaxesSum)}
                               width={"50px"}
                             />
                           ) : (
-                            tax
+                            invoiceTaxesSum.toFixed(2)
                           )}
-                        </ListGroup.Item>
-                      ))
-                    ) : (
-                      <ListGroup.Item>No taxes applied</ListGroup.Item>
-                    )}
+                          </ListGroup.Item>
                   </ListGroup>
                 </Col>
                 <Col xs={3}>
@@ -955,7 +933,7 @@ const Table = ({
                       {" "}
                       <ListGroup.Item>
                         {" "}
-                        ${sum - extraDiscountsSum + parseFloat(invoiceTaxesSum)}
+                        ${(sum - extraDiscountsSum + parseFloat(invoiceTaxesSum)).toFixed(2)}
                       </ListGroup.Item>
                     </ListGroup>
                   </p>
