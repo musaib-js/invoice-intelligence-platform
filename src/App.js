@@ -20,7 +20,6 @@ function App() {
       </nav> */}
       <PDFTableComponent />
 
-      <hr className="featurette-divider mb-0"></hr>
     </div>
   );
 }

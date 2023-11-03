@@ -317,43 +317,6 @@ const PDFTableComponent = () => {
                     allow="autoplay"
                   ></iframe>
                 </div>
-              </Col>
-              <Col md={6}>
-                <div className="mb-4" style={{ height: "530px" }}>
-                  <TableComponent
-                    data={tableData}
-                    invoiceTableData={invoiceTableData}
-                    invoiceBalance={invoiceBalance}
-                    invoiceDate={invoiceDate}
-                    invoiceNum={invoiceNum}
-                    invoicePaymentTerms={invoicePaymentTerms}
-                    invoiceBillTo={invoiceBillTo}
-                    invoiceShipTo={invoiceShipTo}
-                    invoiceRoute={invoiceRoute}
-                    dueDate={dueDate}
-                    invoiceTotal={invoiceTotal}
-                    invoiceRemitTo={invoiceRemitTo}
-                    invoiceGlobalAddresses={invoiceGlobalAddresses}
-                    invoiceSoldTo={invoiceSoldTo}
-                    totalPagesRcvd={totalPagesRcvd}
-                    totalPagesInInvoice={totalPagesInInvoice}
-                    totalPagesInInvoiceFromGlobal={
-                      totalPagesInInvoiceFromGlobal
-                    }
-                    vendorName={vendorName}
-                    vendorNamesSource={vendorNamesSource}
-                    totalPagesProcessed={totalPagesProcessed}
-                    humanVerificationReqd={humanVerificationReqd}
-                    invoiceTotalFromtable={invoiceTotalFromtable}
-                    invoiceDiscount={invoiceDiscount}
-                    invoiceTaxes={invoiceTaxes}
-                    verdict={verdict}
-                    failedReasons={failedReasons}
-                    concerns={concerns}
-                    extraChargesAdded={extraChargesAdded}
-                    extraDiscountsAdded={extraDiscountsAdded}
-                  />
-                </div>
                 <div className="my-4">
                 <span className="my-4 mx-2">
                   <ArrowLeftCircleFill
@@ -391,6 +354,43 @@ const PDFTableComponent = () => {
                     size={40}
                   />
                 </span>
+                </div>
+              </Col>
+              <Col md={6}>
+                <div className="mb-4" style={{ height: "530px" }}>
+                  <TableComponent
+                    data={tableData}
+                    invoiceTableData={invoiceTableData}
+                    invoiceBalance={invoiceBalance}
+                    invoiceDate={invoiceDate}
+                    invoiceNum={invoiceNum}
+                    invoicePaymentTerms={invoicePaymentTerms}
+                    invoiceBillTo={invoiceBillTo}
+                    invoiceShipTo={invoiceShipTo}
+                    invoiceRoute={invoiceRoute}
+                    dueDate={dueDate}
+                    invoiceTotal={invoiceTotal}
+                    invoiceRemitTo={invoiceRemitTo}
+                    invoiceGlobalAddresses={invoiceGlobalAddresses}
+                    invoiceSoldTo={invoiceSoldTo}
+                    totalPagesRcvd={totalPagesRcvd}
+                    totalPagesInInvoice={totalPagesInInvoice}
+                    totalPagesInInvoiceFromGlobal={
+                      totalPagesInInvoiceFromGlobal
+                    }
+                    vendorName={vendorName}
+                    vendorNamesSource={vendorNamesSource}
+                    totalPagesProcessed={totalPagesProcessed}
+                    humanVerificationReqd={humanVerificationReqd}
+                    invoiceTotalFromtable={invoiceTotalFromtable}
+                    invoiceDiscount={invoiceDiscount}
+                    invoiceTaxes={invoiceTaxes}
+                    verdict={verdict}
+                    failedReasons={failedReasons}
+                    concerns={concerns}
+                    extraChargesAdded={extraChargesAdded}
+                    extraDiscountsAdded={extraDiscountsAdded}
+                  />
                 </div>
               </Col>
             </Row>
