@@ -260,12 +260,18 @@ const PDFTableComponent = () => {
                       style={{ height: "30px", cursor: "pointer" }}
                       key={number}
                       onClick={() => {
-                        setPageNumber(number);
-                        setTempValue(number);
+                        setPageNumber(number.invoice_number);
+                        setTempValue(number.invoice_number);
                         setSearchResutsVisible(false);
                       }}
+                      className="d-flex justify-content-between"
                     >
-                      Invoice Number: {number}
+                      <div className="mx-2 text-gray text-sm">
+                      Invoice Number: {number.invoice_number}
+                      </div>
+                      <div className="mx-2 mt-3 text-muted fst-italic" style={{ fontSize: '10px' }}>
+                      Score: {number.matching_score}
+                      </div>
                     </div>
                     <hr className="featurette-divider mt-0 mb-0"></hr>
                   </>
