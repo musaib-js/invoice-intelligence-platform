@@ -72,20 +72,18 @@ const Table = ({
   const [taxes, setTaxes] = useState([]);
 
   useEffect(() => {
-    if(extraDiscountsAdded[0]==="NA"){
-      setDiscounts([0])
-    }
-    else{
+    if (extraDiscountsAdded[0] === "NA") {
+      setDiscounts([0]);
+    } else {
       setDiscounts(extraDiscountsAdded);
     }
-    if(invoiceTaxes[0]==="NA"){
-      setTaxes([0])
-    }
-    else{
-    setTaxes(invoiceTaxes);
+    if (invoiceTaxes[0] === "NA") {
+      setTaxes([0]);
+    } else {
+      setTaxes(invoiceTaxes);
     }
   }, []);
-  
+
   useEffect(() => {
     setExtraDiscountsSum(
       discounts[0] === "NA" || discounts.length === 0 || discounts[0] === isNaN
@@ -97,7 +95,7 @@ const Table = ({
         ? 0
         : taxes.reduce((acc, tax) => acc + tax, 0)
     );
-  }, [discounts, taxes])
+  }, [discounts, taxes]);
   useEffect(() => {}, [editDiscount, editTax]);
   if (!data || Object.keys(data).length === 0) {
     return <p>Invoice structure is not compatible for detection.</p>;
@@ -106,15 +104,14 @@ const Table = ({
     const updatedDiscounts = [...discounts];
     updatedDiscounts[index] = e.target.value;
     setDiscounts(updatedDiscounts);
-
   };
   const handleTaxChange = (e, index) => {
-    try{
-    const updatedTaxes = [...taxes];
-    updatedTaxes[index] = e.target.value;
-    setTaxes(updatedTaxes);
-    }catch(error){
-      console.log("the errrrrr", error)
+    try {
+      const updatedTaxes = [...taxes];
+      updatedTaxes[index] = e.target.value;
+      setTaxes(updatedTaxes);
+    } catch (error) {
+      console.log("the errrrrr", error);
     }
   };
 
@@ -891,9 +888,11 @@ const Table = ({
                         >
                           {editDiscount ? (
                             <input
+                              // type="number"
                               onChange={(e) => handleDiscountChange(e, index)}
                               className="form-control"
-                              value={discount}
+                              value={parseFloat(discount)}
+                              width={"50px"}
                             />
                           ) : (
                             discount
@@ -918,9 +917,11 @@ const Table = ({
                         >
                           {editTax ? (
                             <input
+                              // type="number"
                               onChange={(e) => handleTaxChange(e, index)}
                               className="form-control"
-                              value={tax}
+                              value={parseFloat(tax)}
+                              width={"50px"}
                             />
                           ) : (
                             tax
@@ -954,8 +955,7 @@ const Table = ({
                       {" "}
                       <ListGroup.Item>
                         {" "}
-                        $
-                        {(sum - extraDiscountsSum + parseFloat(invoiceTaxesSum))}
+                        ${sum - extraDiscountsSum + parseFloat(invoiceTaxesSum)}
                       </ListGroup.Item>
                     </ListGroup>
                   </p>
