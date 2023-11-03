@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Resizable } from "react-resizable";
 import { Tooltip } from "react-tooltip";
 import axios from "axios";
-import {toast, ToastContainer} from "react-toastify";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ResizableCell = ({ children, width, ...rest }) => {
   return (
@@ -59,6 +60,7 @@ const Table = ({
   const [rowId, setRowId] = useState(-1);
   const [editableRow, setEditableRow] = useState(-1);
   const [changedInputs, setChangedInputs] = useState([]);
+  const [newPayload, setPayload] = useState({ row_id: null, row_data: {} });
   if (!data || Object.keys(data).length === 0) {
     return <p>Invoice structure is not compatible for detection.</p>;
   }
@@ -80,45 +82,86 @@ const Table = ({
   console.log("inv table data", invoiceTableData);
   console.log("The table data edit are", dataForEditabletable);
 
-  const calculateExtendedPrice = async (rowData) => {
-    console.log("the data in calc", rowData);
-    const extendedPriceColIndex = invNewTableheaders.findIndex((header) => header === "Extended Price");
-    console.log("The index is", extendedPriceColIndex)
-    const rowDataObject = {};
-    rowData.forEach((entry) => {
-      const key = Object.keys(entry)[0];
-      const value = entry[key];
-      rowDataObject[key] = value;
+  // Function to handle the edit icon click
+  const handleEditIconClick = (rowId) => {
+    setEditableRow(rowId);
+    const initialRowData = {};
+    invNewTableheaders.forEach((header) => {
+      initialRowData[header] = String(
+        dataForEditabletable[rowId][invNewTableheaders.indexOf(header)].text
+      );
     });
-    console.log("The changed inputs are", changedInputs)
-    const payload = {
-      row_id: rowId,
-      row_data: rowDataObject,
-    };
-    console.log("The payload is", payload);
-    await axios.post(`${process.env.REACT_APP_EXTENDED_PRICE}`, payload)
-    .then((response)=>{
-      console.log("the respons is", response)
-      dataForEditabletable[rowId][extendedPriceColIndex].text = response.data["Extended Price"].text;
-      dataForEditabletable[rowId][extendedPriceColIndex].confidence = response.data["Extended Price"].confidence;
-      changedInputs.forEach((entry)=>{
-        dataForEditabletable[rowId][entry.indexId].text = entry.value;
-      })
-      toast.success("Extended Price Calculated Successfully")
-      setEditableRow(-1)
-      setRowDataForExtendedPrice([]);
-      setTempData([]);
-      setRowId(-1);
-      setChanged(false);
-      setChangedInputs([])
-    })
-    .catch((error)=>{
-      toast.error(error)
-    })
+    setPayload({ row_id: rowId, row_data: initialRowData });
   };
-  
+
+  // Function to handle input changes
+  const handleInputChange = (header, value) => {
+    setPayload((prevPayload) => ({
+      ...prevPayload,
+      row_data: {
+        ...prevPayload.row_data,
+        [header]: String(value),
+      },
+    }));
+  };
+
+  const calculateExtendedPrice = async () => {
+    const extendedPriceColIndex = invNewTableheaders.findIndex(
+      (header) => header === "Extended Price"
+    );
+    console.log("the extended price index", extendedPriceColIndex);
+    console.log("The changed inputs are", changedInputs);
+    await axios
+      .post(`${process.env.REACT_APP_EXTENDED_PRICE}`, newPayload)
+      .then((response) => {
+        console.log("the respons is", response);
+        console.log("edit table data", dataForEditabletable);
+        console.log("the row Id is", rowId);
+        dataForEditabletable[rowId][extendedPriceColIndex].text =
+          response.data["Extended Price"].text;
+        dataForEditabletable[rowId][extendedPriceColIndex].confidence =
+          response.data["Extended Price"].confidence;
+        changedInputs.forEach((entry) => {
+          dataForEditabletable[rowId][entry.indexId].text = entry.value;
+        });
+        toast.success("Extended Price Calculated Successfully!", {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+        setEditableRow(-1);
+        setRowId(-1);
+        setChanged(false);
+        setChangedInputs([]);
+        setPayload({ row_id: null, row_data: {} });
+      })
+      .catch((error) => {
+        console.log("comign here", error);
+        toast.error(error);
+      });
+  };
+
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      {/* Same as */}
+      <ToastContainer />
       <div className="d-flex justify-content-center border my-2">
         <div
           className="border w-100 p-2"
@@ -383,7 +426,7 @@ const Table = ({
                 </th>
                 <td>
                   <ul style={{ textTransform: "capitalize" }}>
-                    {extraChargesAdded!="NA"
+                    {extraChargesAdded != "NA"
                       ? extraChargesAdded?.map((charge, index) => (
                           <li key={index}>{charge}</li>
                         ))
@@ -659,27 +702,32 @@ const Table = ({
                 <tr>
                   {invNewTableheaders.map((header, index) => (
                     <th
-                    style={{
-                      backgroundColor: "#FFF2CD",
-                      textTransform: "capitalize",
-                      verticalAlign: "middle", 
-                    }}
-                    key={index}
-                    className="resizable-header"
-                  >
-                    <ResizableCell style={{ width: 150 }}>
-                      <div style={{ lineHeight: "1.5", overflow: "hidden", textOverflow: "ellipsis" }}>
-                        {header}
-                      </div>
-                    </ResizableCell>
-                  </th>
-                  
+                      style={{
+                        backgroundColor: "#FFF2CD",
+                        textTransform: "capitalize",
+                        verticalAlign: "middle",
+                      }}
+                      key={index}
+                      className="resizable-header"
+                    >
+                      <ResizableCell style={{ width: 150 }}>
+                        <div
+                          style={{
+                            lineHeight: "1.5",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {header}
+                        </div>
+                      </ResizableCell>
+                    </th>
                   ))}
                   <th
                     style={{
                       backgroundColor: "#FFF2CD",
                       textTransform: "capitalize",
-                       verticalAlign: "middle", 
+                      verticalAlign: "middle",
                     }}
                   >
                     Actions
@@ -708,20 +756,15 @@ const Table = ({
                               header === "Extended Price" ? true : false
                             }
                             onChange={(e) => {
+                              handleInputChange(header, e.target.value);
                               setChanged(true);
-                              setTempData({
-                                [header]: e.target.value,
-                                indexId: colIndex,
-                              });
-                              setRowId(key);
                             }}
                             onBlur={(e) => {
-                              setRowDataForExtendedPrice([
-                                ...rowDataForExtendedPrice,
-                                tempData,
+                              setChangedInputs([
+                                ...changedInputs,
+                                { indexId: colIndex, value: e.target.value },
                               ]);
-                              setChangedInputs([...changedInputs, {indexId: colIndex, value: e.target.value}]);
-                              console.log("the col index is", colIndex)
+                              console.log("the col index is", colIndex);
                             }}
                           ></input>
                         ) : (
@@ -742,7 +785,9 @@ const Table = ({
                           class="bi bi-check"
                           viewBox="0 0 16 16"
                           style={{ cursor: "pointer" }}
-                          onClick={() => {calculateExtendedPrice(rowDataForExtendedPrice);}}
+                          onClick={() => {
+                            calculateExtendedPrice();
+                          }}
                         >
                           <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
                         </svg>
@@ -755,7 +800,9 @@ const Table = ({
                           class="bi bi-pen"
                           viewBox="0 0 16 16"
                           onClick={() => {
+                            setRowId(key);
                             setEditableRow(key);
+                            handleEditIconClick(key);
                           }}
                           style={{ cursor: "pointer" }}
                         >
@@ -769,9 +816,18 @@ const Table = ({
             </table>
           </div>
           <div className="d-flex justify-content-end my-2 mx-2 mb-4">
-            <button className="shadow-lg btn mx-1 btn-sm" style={{backgroundColor: "rgb(255, 242, 205)"}}>Accept</button>
-            <button className="shadow-lg btn mx-1 btn-sm btn-danger">Reject</button>
-            <button className="shadow-lg btn mx-1 btn-sm btn-warning">Save</button>
+            <button
+              className="shadow-lg btn mx-1 btn-sm"
+              style={{ backgroundColor: "rgb(255, 242, 205)" }}
+            >
+              Accept
+            </button>
+            <button className="shadow-lg btn mx-1 btn-sm btn-danger">
+              Reject
+            </button>
+            <button className="shadow-lg btn mx-1 btn-sm btn-warning">
+              Save
+            </button>
           </div>
         </>
       ) : null}
