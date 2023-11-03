@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Resizable } from "react-resizable";
 import { Tooltip } from "react-tooltip";
 import axios from "axios";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Card, Row, Col, ListGroup } from "react-bootstrap";
 
 const ResizableCell = ({ children, width, ...rest }) => {
   return (
@@ -61,9 +62,61 @@ const Table = ({
   const [editableRow, setEditableRow] = useState(-1);
   const [changedInputs, setChangedInputs] = useState([]);
   const [newPayload, setPayload] = useState({ row_id: null, row_data: {} });
+  const [editDiscount, setEditDiscount] = useState(false);
+  const [editTax, setEditTax] = useState(false);
+  const [newDiscounts, setNewDiscounts] = useState([]);
+  const [newTaxes, setNewTaxes] = useState([]);
+  const [extraDiscountsSum, setExtraDiscountsSum] = useState(0);
+  const [invoiceTaxesSum, setInvoiceTaxesSum] = useState(0);
+  const [discounts, setDiscounts] = useState([]);
+  const [taxes, setTaxes] = useState([]);
+
+  useEffect(() => {
+    if(extraDiscountsAdded[0]==="NA"){
+      setDiscounts([0])
+    }
+    else{
+      setDiscounts(extraDiscountsAdded);
+    }
+    if(invoiceTaxes[0]==="NA"){
+      setTaxes([0])
+    }
+    else{
+    setTaxes(invoiceTaxes);
+    }
+  }, []);
+  
+  useEffect(() => {
+    setExtraDiscountsSum(
+      discounts[0] === "NA" || discounts.length === 0 || discounts[0] === isNaN
+        ? 0
+        : discounts.reduce((acc, discount) => acc + discount, 0)
+    );
+    setInvoiceTaxesSum(
+      taxes[0] === "NA" || taxes.length === 0 || taxes[0] === isNaN
+        ? 0
+        : taxes.reduce((acc, tax) => acc + tax, 0)
+    );
+  }, [discounts, taxes])
+  useEffect(() => {}, [editDiscount, editTax]);
   if (!data || Object.keys(data).length === 0) {
     return <p>Invoice structure is not compatible for detection.</p>;
   }
+  const handleDiscountChange = (e, index) => {
+    const updatedDiscounts = [...discounts];
+    updatedDiscounts[index] = e.target.value;
+    setDiscounts(updatedDiscounts);
+
+  };
+  const handleTaxChange = (e, index) => {
+    try{
+    const updatedTaxes = [...taxes];
+    updatedTaxes[index] = e.target.value;
+    setTaxes(updatedTaxes);
+    }catch(error){
+      console.log("the errrrrr", error)
+    }
+  };
 
   const headers = Object.keys(data[Object.keys(data)[0]]);
   console.log("The data is", data);
@@ -104,11 +157,11 @@ const Table = ({
       },
     }));
   };
-
+  const extendedPriceColIndex = invNewTableheaders.findIndex(
+    (header) => header === "Extended Price"
+  );
+  let sum = 0;
   const calculateExtendedPrice = async () => {
-    const extendedPriceColIndex = invNewTableheaders.findIndex(
-      (header) => header === "Extended Price"
-    );
     console.log("the extended price index", extendedPriceColIndex);
     console.log("The changed inputs are", changedInputs);
     await axios
@@ -815,7 +868,115 @@ const Table = ({
               </tbody>
             </table>
           </div>
-          <div className="d-flex justify-content-end my-2 mx-2 mb-4">
+          <Card className="mx-2 my-2 mb-2 p-0">
+            <Card.Body>
+              <Row>
+                <Col xs={3}>
+                  <p>Invoice Total </p>
+                  <ListGroup>
+                    {" "}
+                    <ListGroup.Item>${invoiceTotalFromtable}</ListGroup.Item>
+                  </ListGroup>
+                </Col>
+                <Col xs={2}>
+                  <p>Discounts</p>
+                  <ListGroup>
+                    {discounts !== "NA" && discounts.length > 0 ? (
+                      discounts.map((discount, index) => (
+                        <ListGroup.Item
+                          key={index}
+                          onClick={() => {
+                            setEditDiscount(true);
+                          }}
+                        >
+                          {editDiscount ? (
+                            <input
+                              onChange={(e) => handleDiscountChange(e, index)}
+                              className="form-control"
+                              value={discount}
+                            />
+                          ) : (
+                            discount
+                          )}
+                        </ListGroup.Item>
+                      ))
+                    ) : (
+                      <ListGroup.Item>No discounts applied</ListGroup.Item>
+                    )}
+                  </ListGroup>
+                </Col>
+                <Col xs={2}>
+                  <p>Taxes</p>
+                  <ListGroup>
+                    {taxes !== "NA" && taxes.length > 0 ? (
+                      taxes.map((tax, index) => (
+                        <ListGroup.Item
+                          key={index}
+                          onClick={() => {
+                            setEditTax(true);
+                          }}
+                        >
+                          {editTax ? (
+                            <input
+                              onChange={(e) => handleTaxChange(e, index)}
+                              className="form-control"
+                              value={tax}
+                            />
+                          ) : (
+                            tax
+                          )}
+                        </ListGroup.Item>
+                      ))
+                    ) : (
+                      <ListGroup.Item>No taxes applied</ListGroup.Item>
+                    )}
+                  </ListGroup>
+                </Col>
+                <Col xs={3}>
+                  <p>Calculated Total </p>
+                  <p
+                    className={`${
+                      sum -
+                        extraDiscountsSum +
+                        invoiceTaxesSum -
+                        invoiceTotalFromtable >
+                      30
+                        ? "text-danger fw-bolder"
+                        : "text-success fw-bolder"
+                    }`}
+                  >
+                    {Object.keys(dataForEditabletable).forEach((key) => {
+                      const value =
+                        dataForEditabletable[key][extendedPriceColIndex].text;
+                      sum += parseFloat(value);
+                    })}
+                    <ListGroup>
+                      {" "}
+                      <ListGroup.Item>
+                        {" "}
+                        $
+                        {(sum - extraDiscountsSum + parseFloat(invoiceTaxesSum))}
+                      </ListGroup.Item>
+                    </ListGroup>
+                  </p>
+                </Col>
+                <Col xs={2}>
+                  <p>Difference </p>
+                  <ListGroup>
+                    {" "}
+                    <ListGroup.Item>
+                      $
+                      {(
+                        invoiceTotalFromtable -
+                        (sum - extraDiscountsSum + invoiceTaxesSum)
+                      ).toFixed(2)}
+                    </ListGroup.Item>
+                  </ListGroup>
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
+          {/* <div className="d-flex justify-content-end my-2 mx-2 mb-4">
             <button
               className="shadow-lg btn mx-1 btn-sm"
               style={{ backgroundColor: "rgb(255, 242, 205)" }}
@@ -828,7 +989,7 @@ const Table = ({
             <button className="shadow-lg btn mx-1 btn-sm btn-warning">
               Save
             </button>
-          </div>
+          </div> */}
         </>
       ) : null}
     </>
