@@ -289,7 +289,7 @@ export default function HumanVerification({
                       cursor: "pointer",
                       backgroundColor: `${
                         dataForEditabletable[key][colIndex]?.confidence < 80
-                          ? "#FFC0CB"
+                          ? "#F8C8BE"
                           : null
                       }`,
                     }}
