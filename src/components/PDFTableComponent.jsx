@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 import TableComponent from "./TableComponent";
 import { pdfjs } from "react-pdf";
 import {
@@ -45,15 +45,21 @@ const PDFTableComponent = () => {
   const [concerns, setConcerns] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalInvoices, setTotalInvoices] = useState(0);
-  const [newPage, setNewpage] = useState(0);
+  // const [newPage, setNewpage] = useState(0);
   const [tempValue, setTempValue] = useState(1);
   const [invoiceTableData, setInvoiceTableData] = useState([]);
   const [searchInput, setSearchInput] = useState("");
   const [invoiceNumArray, setInvoiceNumArray] = useState([]);
   const [searchResultVisible, setSearchResutsVisible] = useState(false);
-  const [extraChargesAdded, setExtraChargesAdded] = useState([])
-  const [extraDiscountsAdded, setExtraDiscountsAdded] = useState([])
-
+  const [extraChargesAdded, setExtraChargesAdded] = useState([]);
+  const [extraDiscountsAdded, setExtraDiscountsAdded] = useState([]);
+  const [respData, setRespData] = useState({});
+  const [selectedFilter, setSelectedFilter] = useState("All");
+  const filterOptions = [
+    "All",
+    "Human Verification Required",
+    "Human Verification Not Required",
+  ];
   useEffect(() => {
     if (pageNumber === 0) {
       return;
@@ -111,46 +117,75 @@ const PDFTableComponent = () => {
         setInvoiceTableData(invoicetableData);
 
         setPdfUrl(response.data.response.pdf_link);
-        setInvoiceNum(response.data.response.invoice_number);
-        setInvoiceDate(response.data.response.invoice_date);
-        setvendorName(response.data.response.vendor_names);
+        setInvoiceNum(response.data.response.invoice_metadata.invoice_number);
+        setInvoiceDate(response.data.response.invoice_metadata.invoice_date);
+        setvendorName(response.data.response.invoice_metadata.vendor_names);
         setTotalInvoices(response.data.response.total_invoices);
-        setdueDate(response.data.response.invoice_due_date);
-        setInvoiceBalance(response.data.response.invoice_balance_due);
-        setInvoiceTotal(response.data.response.invoice_total_amount);
-        setInvoicePaymentTerms(response.data.response.invoice_payment_terms);
-        setInvoiceRemitTo(response.data.response.invoice_remit_to);
-        setInvoiceRoute(response.data.response.invoice_route);
-        setInvoiceShipTo(response.data.response.invoice_ship_to);
-        setInvoiceBillTo(response.data.response.invoice_bill_to);
+        setdueDate(response.data.response.invoice_metadata.invoice_due_date);
+        setInvoiceBalance(
+          response.data.response.invoice_metadata.invoice_balance_due
+        );
+        setInvoiceTotal(
+          response.data.response.invoice_metadata.invoice_total_amount
+        );
+        setInvoicePaymentTerms(
+          response.data.response.invoice_metadata.invoice_payment_terms
+        );
+        setInvoiceRemitTo(
+          response.data.response.invoice_metadata.invoice_remit_to
+        );
+        setInvoiceRoute(response.data.response.invoice_metadata.invoice_route);
+        setInvoiceShipTo(
+          response.data.response.invoice_metadata.invoice_ship_to
+        );
+        setInvoiceBillTo(
+          response.data.response.invoice_metadata.invoice_bill_to
+        );
         setInvoiceGlobalAddresses(
-          response.data.response.invoice_global_addresses
+          response.data.response.invoice_metadata.invoice_global_addresses
         );
-        setInvoiceSoldTo(response.data.response.invoice_sold_to);
+        setInvoiceSoldTo(
+          response.data.response.invoice_metadata.invoice_sold_to
+        );
         setTotalPagesRcvd(
-          response.data.response.total_number_of_pages_received
+          response.data.response.invoice_metadata.total_number_of_pages_received
         );
-        setTotalPagesInInvoice(response.data.response.total_pages_in_invoice);
+        setTotalPagesInInvoice(
+          response.data.response.invoice_metadata.total_pages_in_invoice
+        );
         setTotalPagesInInvoiceFromGlobal(
-          response.data.response.total_pages_in_invoice_from_global
+          response.data.response.invoice_metadata
+            .total_pages_in_invoice_from_global
         );
-        setvendorNamesSource(response.data.response.vendor_names_source);
+        setvendorNamesSource(
+          response.data.response.invoice_metadata.vendor_names_source
+        );
         setTotalPagesProcessed(
-          response.data.response.total_number_of_pages_processed
+          response.data.response.invoice_metadata
+            .total_number_of_pages_processed
         );
         setHumanVerificationReqd(
           response.data.response.human_verification_required
         );
         setInvoiceTotalFromtable(
-          response.data.response.invoice_total_from_table
+          response.data.response.invoice_metadata.invoice_total_from_table
         );
-        setInvoiceDiscount(response.data.response.invoice_discount);
-        setInvoiceTaxes(response.data.response.invoice_taxes);
-        setVerdict(response.data.response.verdict);
-        setFailedReasons(response.data.response.failed_reasons);
-        setConcerns(response.data.response.concerns);
-        setExtraChargesAdded(response.data.response.extra_charges_added)
-        setExtraDiscountsAdded(response.data.response.extra_discounts_added)
+        setInvoiceDiscount(
+          response.data.response.invoice_metadata.invoice_discount
+        );
+        setInvoiceTaxes(response.data.response.invoice_metadata.invoice_taxes);
+        setVerdict(response.data.response.human_verification_info.verdict);
+        setFailedReasons(
+          response.data.response.human_verification_info.failed_reasons
+        );
+        setConcerns(response.data.response.human_verification_info.concerns);
+        setExtraChargesAdded(
+          response.data.response.invoice_metadata.extra_charges_added
+        );
+        setExtraDiscountsAdded(
+          response.data.response.invoice_metadata.extra_discounts_added
+        );
+        setRespData(response.data.response);
         setLoading(false);
       })
       .catch((error) => {
@@ -171,17 +206,17 @@ const PDFTableComponent = () => {
     const inputValue = event.target.value;
     setSearchInput(inputValue);
   };
-  const handleBlurSearch = () => {
-    setTimeout(() => {
-      setSearchResutsVisible(false);
-    }, 100);
-  };
+  // const handleBlurSearch = () => {
+  //   setTimeout(() => {
+  //     setSearchResutsVisible(false);
+  //   }, 100);
+  // };
   useEffect(() => {
     console.log("the url is");
     const payload = {
       invoice_name: searchInput,
     };
-    if (searchInput != "") {
+    if (searchInput !== "") {
       const apiUrl = `${process.env.REACT_APP_SEARCH_URL}`;
       axios
         .post(apiUrl, payload)
@@ -201,17 +236,35 @@ const PDFTableComponent = () => {
     <>
       <nav
         className="navbar p-3 shadow-sm"
-        style={{ backgroundColor: "#FDFFD0", marginBottom: "65px" }}
+        style={{
+          backgroundColor: "#FDFFD0",
+          position: "fixed",
+          top: "0",
+          bottom: "100",
+          zIndex: "100",
+          width: "100%",
+        }}
       >
         <div className="container-fluid">
           <span
             className="navbar-brand mb-0 h1 m-auto"
-            style={{ fontSize: "1.4em", letterSpacing: "1px"}}
+            style={{ fontSize: "1.4em", letterSpacing: "1px" }}
           >
             Invoice Intelligence Platform
           </span>
-          <div className="col-md-8" style={{width: "510px"}}>
+          <div className="col-12 col-md-8" style={{ width: "510px" }}>
             <div className="input-group" style={{ width: "500px" }}>
+              <select
+                className="form-select"
+                onChange={(e) => setSelectedFilter(e.target.value)}
+                value={selectedFilter}
+              >
+                {filterOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
               <input
                 type="text"
                 className="form-control"
@@ -267,10 +320,13 @@ const PDFTableComponent = () => {
                       className="d-flex justify-content-between"
                     >
                       <div className="mx-2 text-gray text-sm">
-                      Invoice Number: {number.invoice_number}
+                        Invoice Number: {number.invoice_number}
                       </div>
-                      <div className="mx-2 mt-3 text-muted fst-italic" style={{ fontSize: '10px' }}>
-                      Score: {number.matching_score}
+                      <div
+                        className="mx-2 mt-3 text-muted fst-italic"
+                        style={{ fontSize: "10px" }}
+                      >
+                        Score: {number.matching_score}
                       </div>
                     </div>
                     <hr className="featurette-divider mt-0 mb-0"></hr>
@@ -281,7 +337,9 @@ const PDFTableComponent = () => {
           </div>
         </div>
       </nav>
-      <Container className="mt-4">
+      <div className="mx-5"
+      style={{marginTop: "135px"}}
+      >
         {loading ? (
           <ColorRing
             visible={true}
@@ -305,55 +363,54 @@ const PDFTableComponent = () => {
               <Col md={6}>
                 <div
                   style={{
-                    height: "530px",
+                    height: "580px",
                   }}
                 >
                   <iframe
                     title="pdf"
                     src={pdfUrl}
                     width="100%"
-                    height="530"
-                    frameborder="0"
+                    height="570"
                     allow="autoplay"
                   ></iframe>
                 </div>
                 <div className="my-4">
-                <span className="my-4 mx-2">
-                  <ArrowLeftCircleFill
-                    onClick={() => {
-                      setPageNumber(tempValue - 1);
-                      setTempValue(tempValue - 1);
-                    }}
-                    size={40}
-                  />
-                </span>
-                <span className="my-4 mx-2">
-                  <input
-                    value={tempValue}
-                    onChange={handleInputChange}
-                    onBlur={handleBlur}
-                    className="btn btn-secondary"
-                    style={{ width: "50px" }}
-                  />
-                  <span className="my-4">
-                    {" "}
-                    <strong>/</strong>{" "}
-                    <input
-                      value={`${totalInvoices}`}
-                      className="btn btn-secondary"
-                      style={{ width: "50px", cursor: "default" }}
+                  <span className="my-4 mx-2">
+                    <ArrowLeftCircleFill
+                      onClick={() => {
+                        setPageNumber(tempValue - 1);
+                        setTempValue(tempValue - 1);
+                      }}
+                      size={40}
                     />
                   </span>
-                </span>
-                <span className="my-4 mx-2">
-                  <ArrowRightCircleFill
-                    onClick={() => {
-                      setPageNumber(tempValue + 1);
-                      setTempValue(tempValue + 1);
-                    }}
-                    size={40}
-                  />
-                </span>
+                  <span className="my-4 mx-2">
+                    <input
+                      value={tempValue}
+                      onChange={handleInputChange}
+                      onBlur={handleBlur}
+                      className="btn btn-secondary"
+                      style={{ width: "50px" }}
+                    />
+                    <span className="my-4">
+                      {" "}
+                      <strong>/</strong>{" "}
+                      <input
+                        value={`${totalInvoices}`}
+                        className="btn btn-secondary"
+                        style={{ width: "50px", cursor: "default" }}
+                      />
+                    </span>
+                  </span>
+                  <span className="my-4 mx-2">
+                    <ArrowRightCircleFill
+                      onClick={() => {
+                        setPageNumber(tempValue + 1);
+                        setTempValue(tempValue + 1);
+                      }}
+                      size={40}
+                    />
+                  </span>
                 </div>
               </Col>
               <Col md={6}>
@@ -390,13 +447,14 @@ const PDFTableComponent = () => {
                     concerns={concerns}
                     extraChargesAdded={extraChargesAdded}
                     extraDiscountsAdded={extraDiscountsAdded}
+                    respData={respData}
                   />
                 </div>
               </Col>
             </Row>
           </>
         )}
-      </Container>
+      </div>
     </>
   );
 };
