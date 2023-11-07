@@ -215,6 +215,9 @@ const PDFTableComponent = () => {
     console.log("the url is");
     const payload = {
       invoice_name: searchInput,
+      filters: {
+        human_verification: selectedFilter === "All" ? 'both' : selectedFilter === "Human Verification Required" ? 'true' : 'false',
+      }
     };
     if (searchInput !== "") {
       const apiUrl = `${process.env.REACT_APP_SEARCH_URL}`;
@@ -231,7 +234,7 @@ const PDFTableComponent = () => {
     } else {
       setInvoiceNumArray([]);
     }
-  }, [searchInput]);
+  }, [searchInput, selectedFilter]);
   return (
     <>
       <nav
