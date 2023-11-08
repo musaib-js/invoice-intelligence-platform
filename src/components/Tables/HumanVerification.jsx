@@ -5,6 +5,9 @@ import { Tooltip } from "react-tooltip";
 import { Card, Col, ListGroup, Row } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { PlusCircleFill } from "react-bootstrap-icons";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
 
 const ResizableCell = ({ children, width, ...rest }) => {
   return (
@@ -21,6 +24,7 @@ const ResizableCell = ({ children, width, ...rest }) => {
 
 export default function HumanVerification({
   invoiceTableData,
+  setInvoiceTableData,
   respData,
   invoiceTotalFromtable,
   extraDiscountsAdded,
@@ -28,6 +32,9 @@ export default function HumanVerification({
   width,
   invTableheaders,
   rowDataForExtendedPrice,
+  additionalCols,
+  tableSpecificAddCols,
+  additionalHeaders,
 }) {
   const [extraDiscountsSum, setExtraDiscountsSum] = useState(0);
   const [invoiceTaxesSum, setInvoiceTaxesSum] = useState(0);
@@ -44,6 +51,18 @@ export default function HumanVerification({
   const [extendedPriceColIndex, setExtendedPriceColIndex] = useState(0);
   const [dataForEditabletable, setDataForEditableTable] = useState([]);
   const [invNewTableheaders, setInvNewTableHeaders] = useState([]);
+  const [dataForAdditionaltable, setDataForAdditionalTable] = useState([]);
+  const [invAdditionalTableheaders, setInvAdditionalTableHeaders] = useState([]);
+  const [dataForTableSpecificAddTab, setDataForTableSpecificAddTab] = useState([]);
+  const [additionalTableheaders, setAdditionalTableHeaders] = useState([]);
+  const [show, setShow] = useState(false);
+  const [showTwo, setShowTwo] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  const handleCloseTwo = () => setShowTwo(false);
+  const handleShowTwo = () => setShowTwo(true);
 
   useEffect(() => {
     const calculateSum = () => {
@@ -78,8 +97,6 @@ export default function HumanVerification({
     } else {
       setTaxes(invoiceTaxes);
     }
-
-    calculateSum();
     setExtraDiscountsSum(
       discounts?.[0] === "NA" ||
         discounts?.length === 0 ||
@@ -100,6 +117,18 @@ export default function HumanVerification({
 
     setDataForEditableTable(invoiceTableData.slice(1, invoiceTableData.length));
 
+    setInvAdditionalTableHeaders(
+      Object.values(additionalCols[0]).map((entry) => entry.text)
+    );
+
+    setDataForAdditionalTable(additionalCols.slice(1, additionalCols.length));
+
+    setAdditionalTableHeaders(
+      Object.values(tableSpecificAddCols[0]).map((entry) => entry.text)
+    );
+
+    setDataForTableSpecificAddTab(tableSpecificAddCols.slice(1, tableSpecificAddCols.length));
+
     setExtendedPriceColIndex(
       invNewTableheaders.findIndex((header) => header === "Extended Price")
     );
@@ -112,7 +141,23 @@ export default function HumanVerification({
     extendedPriceColIndex,
     invoiceTableData,
     invNewTableheaders,
+    editableRow
   ]);
+
+  const generateEmptyRow = () => {
+    const emptyRow = {};
+    for (let i = 0; i < invNewTableheaders.length; i++) {
+      emptyRow[i] = {
+        confidence: 100,
+        text: "",
+      };
+    }
+    return emptyRow;
+  };
+
+  const addEmptyRow = () => {
+    setInvoiceTableData((prevData) => [...prevData, generateEmptyRow()]);
+  };
 
   const handleDiscountChange = (e) => {
     setExtraDiscountsSum(parseFloat(e.target.value));
@@ -127,7 +172,7 @@ export default function HumanVerification({
     const initialRowData = {};
     invNewTableheaders.forEach((header) => {
       initialRowData[header] = String(
-        dataForEditabletable[rowId][invNewTableheaders.indexOf(header)].text
+        dataForEditabletable[rowId][invNewTableheaders.indexOf(header)]?.text
       );
     });
     setPayload({ row_id: rowId, row_data: initialRowData });
@@ -255,20 +300,18 @@ export default function HumanVerification({
                         textOverflow: "ellipsis",
                       }}
                     >
-                      {header}
+                      <select className="form-select">
+                        <option value={header}>{header}</option>
+                        {additionalHeaders.map((option, index) => (
+                          <option key={index} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </ResizableCell>
                 </th>
               ))}
-              {/* <th
-                    style={{
-                      backgroundColor: "#FFF2CD",
-                      textTransform: "capitalize",
-                      verticalAlign: "middle",
-                    }}
-                  >
-                    Actions
-                  </th> */}
             </tr>
           </thead>
           <tbody>
@@ -278,7 +321,7 @@ export default function HumanVerification({
                   <td
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
-                    title={`Confidence: ${dataForEditabletable[key][colIndex].confidence}`}
+                    title={`Confidence: ${dataForEditabletable[key][colIndex]?.confidence}`}
                     key={colIndex}
                     onClick={() => {
                       setRowId(key);
@@ -294,7 +337,7 @@ export default function HumanVerification({
                       }`,
                     }}
                     className={`${
-                      dataForEditabletable[key][colIndex].confidence < 80
+                      dataForEditabletable[key][colIndex]?.confidence < 80
                         ? "border border-danger"
                         : "border border-success"
                     }`}
@@ -305,7 +348,7 @@ export default function HumanVerification({
                         value={
                           changed
                             ? rowDataForExtendedPrice.header
-                            : dataForEditabletable[key][colIndex].text
+                            : dataForEditabletable[key][colIndex]?.text
                         }
                         disabled={header === "Extended Price" ? true : false}
                         onChange={(e) => {
@@ -323,51 +366,61 @@ export default function HumanVerification({
                       ></input>
                     ) : (
                       <>
-                        {dataForEditabletable[key][colIndex].text}
+                        {dataForEditabletable[key][colIndex]?.text}
                         <Tooltip id={colIndex} />
                       </>
                     )}
                   </td>
                 ))}
-                {/* <td>
-                      {editableRow === key ? (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="26"
-                          height="26"
-                          fill="currentColor"
-                          class="bi bi-check"
-                          viewBox="0 0 16 16"
-                          style={{ cursor: "pointer" }}
-                          onClick={() => {
-                            calculateExtendedPrice();
-                          }}
-                        >
-                          <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
-                        </svg>
-                      ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          fill="currentColor"
-                          class="bi bi-pen"
-                          viewBox="0 0 16 16"
-                          onClick={() => {
-                            setRowId(key);
-                            setEditableRow(key);
-                            handleEditIconClick(key);
-                          }}
-                          style={{ cursor: "pointer" }}
-                        >
-                          <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001zm-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708l-1.585-1.585z" />
-                        </svg>
-                      )}
-                    </td> */}
               </tr>
             ))}
           </tbody>
         </table>
+        <div className="d-flex justify-content-center">
+          <div className="mx-2">
+            <PlusCircleFill
+              onClick={() => {
+                addEmptyRow();
+              }}
+              className="mx-auto fs-32"
+              style={{
+                fontSize: "2rem",
+                color: "yellow",
+                cursor: "pointer",
+              }}
+            ></PlusCircleFill>
+            <p className="mx-auto">Add Row</p>
+          </div>
+
+          <div className="mx-2">
+            <PlusCircleFill
+              onClick={() => {
+                handleShow();
+              }}
+              className="mx-auto fs-32"
+              style={{
+                fontSize: "2rem",
+                color: "yellow",
+                cursor: "pointer",
+              }}
+            ></PlusCircleFill>
+            <p className="mx-auto">Add Column From Combined</p>
+          </div>
+          <div className="mx-2">
+            <PlusCircleFill
+              onClick={() => {
+                handleShowTwo();
+              }}
+              className="mx-auto fs-32"
+              style={{
+                fontSize: "2rem",
+                color: "yellow",
+                cursor: "pointer",
+              }}
+            ></PlusCircleFill>
+            <p className="mx-auto">Add Column From Table</p>
+          </div>
+        </div>
       </div>
       <Card className="mx-2 my-2 mb-4 p-0">
         <Card.Body>
@@ -426,11 +479,6 @@ export default function HumanVerification({
             <Col xs={12} sm={6} md={4} lg={2}>
               <p>Total</p>
               <p>
-                {/* {Object.keys(dataForEditabletable).forEach((key) => {
-                  const value =
-                    dataForEditabletable[key][extendedPriceColIndex]?.text;
-                  sum += parseFloat(value);
-                })} */}
                 <ListGroup>
                   {" "}
                   <ListGroup.Item
@@ -440,8 +488,8 @@ export default function HumanVerification({
                         invoiceTaxesSum -
                         invoiceTotalFromtable >
                       30
-                        ? "text-danger fw-bolder"
-                        : "text-success fw-bolder"
+                        ? "text-danger fw-bolder border-danger"
+                        : "text-success fw-bolder border-success"
                     }`}
                   >
                     {" "}
@@ -467,8 +515,8 @@ export default function HumanVerification({
                     invoiceTotalFromtable -
                       (sum - extraDiscountsSum + invoiceTaxesSum) <
                       -30
-                      ? "text-danger fw-bolder"
-                      : "text-success fw-bolder"
+                      ? "text-danger fw-bolder border-danger"
+                      : "text-success fw-bolder border-success"
                   }
                 >
                   $
@@ -497,6 +545,169 @@ export default function HumanVerification({
           Save
         </button>
       </div>
+      <Modal
+        show={show}
+        onHide={handleClose}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title-vcenter">
+            Add Columns from Combined Additional Columns
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div
+            style={{
+              width: width || "100%",
+              height: "471px",
+              overflowX: "scroll",
+              overflowY: "scroll",
+            }}
+          >
+            <table className="table table-striped table-responsive">
+              <thead>
+                <tr>
+                  {invAdditionalTableheaders.map((header, index) => (
+                    <th
+                      style={{
+                        backgroundColor: "#FFF2CD",
+                        textTransform: "capitalize",
+                        verticalAlign: "middle",
+                      }}
+                      key={index}
+                      className="resizable-header"
+                    >
+                      <ResizableCell width={100}>
+                        <div
+                          style={{
+                            lineHeight: "1.5",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {header}
+                        </div>
+                      </ResizableCell>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {Object.keys(dataForAdditionaltable).map((key, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {dataForAdditionaltable.map((header, colIndex) => (
+                      <td
+                        style={{
+                          backgroundColor: `${
+                            dataForAdditionaltable[key][colIndex]?.confidence <
+                            80
+                              ? "#A9A9A9"
+                              : null
+                          }`,
+                        }}
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title={`Confidence: ${dataForAdditionaltable[key][colIndex]?.confidence}`}
+                        key={colIndex}
+                      >
+                        {dataForAdditionaltable[key][colIndex]?.text}
+                        <Tooltip id={colIndex} />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => handleClose()}>Close</Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal
+        show={showTwo}
+        onHide={handleCloseTwo}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title-vcenter">
+            Add Columns From Table Specific Additional Columns
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div
+            style={{
+              width: width || "100%",
+              height: "471px",
+              overflowX: "scroll",
+              overflowY: "scroll",
+            }}
+          >
+            <table className="table table-striped table-responsive">
+              <thead>
+                <tr>
+                  {additionalTableheaders.map((header, index) => (
+                    <th
+                      style={{
+                        backgroundColor: "#FFF2CD",
+                        textTransform: "capitalize",
+                        verticalAlign: "middle",
+                      }}
+                      key={index}
+                      className="resizable-header"
+                    >
+                      <ResizableCell width={100}>
+                        <div
+                          style={{
+                            lineHeight: "1.5",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                        >
+                          {header}
+                        </div>
+                      </ResizableCell>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {Object.keys(dataForTableSpecificAddTab).map((key, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {dataForTableSpecificAddTab.map((header, colIndex) => (
+                      <td
+                        style={{
+                          backgroundColor: `${
+                            dataForTableSpecificAddTab[key][colIndex]?.confidence <
+                            80
+                              ? "#A9A9A9"
+                              : null
+                          }`,
+                        }}
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title={`Confidence: ${dataForTableSpecificAddTab[key][colIndex]?.confidence}`}
+                        key={colIndex}
+                      >
+                        {dataForTableSpecificAddTab[key][colIndex]?.text}
+                        <Tooltip id={colIndex} />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => handleCloseTwo()}>Close</Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }

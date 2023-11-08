@@ -60,7 +60,10 @@ const PDFTableComponent = () => {
     "Human Verification Required",
     "Human Verification Not Required",
   ];
-  useEffect(() => {
+  const [additionalCols, setAdditionalCols] = useState([])
+  const [tableSpecificAddCols, setTableSpecificAddCols] = useState([])
+  const [additionalHeaders, setAdditionalHeaders] = useState([])
+    useEffect(() => {
     if (pageNumber === 0) {
       return;
     }
@@ -115,6 +118,47 @@ const PDFTableComponent = () => {
           invoicetableData.push(obj);
         }
         setInvoiceTableData(invoicetableData);
+
+        // Get data for additional table
+        const data1 = response.data.response.additional_columns["combined_additional_columns"];
+        if (Object.keys(data1).length === 0) {
+          setAdditionalCols([]);
+          setLoading(false);
+          return
+        }
+
+        const keys1 = Object.keys(data1);
+        const additionaltableData = [];
+
+        for (let i = 0; i < Object.values(data1[keys1[0]]).length; i++) {
+          const obj = {};
+          for (const key of keys1) {
+            obj[key] = data1[key][i];
+          }
+          additionaltableData.push(obj);
+        }
+        setAdditionalCols(additionaltableData);
+        
+        // Get data for additional table specific cols
+        const data2 = response.data.response.additional_columns["table_specific_additional_columns"]["table_2"]
+        if (Object.keys(data2).length === 0) {
+          setTableSpecificAddCols([]);
+          setLoading(false);
+          return
+        }
+
+        const keys2 = Object.keys(data2);
+        const additionalTableSpecificCols= [];
+
+        for (let i = 0; i < Object.values(data2[keys2[0]]).length; i++) {
+          const obj = {};
+          for (const key of keys2) {
+            obj[key] = data2[key][i];
+          }
+          additionalTableSpecificCols.push(obj);
+        }
+        setTableSpecificAddCols(additionalTableSpecificCols);
+
 
         setPdfUrl(response.data.response.pdf_link);
         setInvoiceNum(response.data.response.invoice_metadata.invoice_number);
@@ -186,6 +230,7 @@ const PDFTableComponent = () => {
           response.data.response.invoice_metadata.extra_discounts_added
         );
         setRespData(response.data.response);
+        setAdditionalHeaders(response.data.response.invoice_metadata.processed_table_header_candidates)
         setLoading(false);
       })
       .catch((error) => {
@@ -248,15 +293,17 @@ const PDFTableComponent = () => {
           width: "100%",
         }}
       >
-        <div className="container-fluid">
-          <span
-            className="navbar-brand mb-0 h1 m-auto"
+          <div className="row"  style={{
+          width: "100%",
+        }}>
+          <div
+            className="navbar-brand mb-0 h1 m-auto col-md-6 float-start"
             style={{ fontSize: "1.4em", letterSpacing: "1px" }}
           >
             Invoice Intelligence Platform
-          </span>
-          <div className="col-12 col-md-8" style={{ width: "510px" }}>
-            <div className="input-group" style={{ width: "500px" }}>
+          </div>
+          <div className="col-md-6 float-end">
+            <div className="input-group" style={{ width: "100%"}}>
               <select
                 className="form-select"
                 onChange={(e) => setSelectedFilter(e.target.value)}
@@ -290,12 +337,12 @@ const PDFTableComponent = () => {
                   <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"></path>
                 </svg>
               </span>
-            </div>
-            {invoiceNumArray.length > 0 && searchResultVisible ? (
+              {invoiceNumArray.length > 0 && searchResultVisible ? (
               <Scrollbars
                 id="suggestions"
                 style={{
-                  width: "500px",
+                  width: "100%",
+                  maxWidth: "auto",
                   position: "absolute",
                   zIndex: 1,
                   height: "140px",
@@ -306,6 +353,8 @@ const PDFTableComponent = () => {
                   scrollbarWidth: "thin",
                   scrollbarColor: "#FDFFD0",
                   paddingRight: "12px",
+                  marginRight: "12px",
+                  marginTop: "40px"
                 }}
               >
                 <div style={{ height: "30px" }}>Matching Invoice Numbers</div>
@@ -337,8 +386,9 @@ const PDFTableComponent = () => {
                 ))}
               </Scrollbars>
             ) : null}
+            </div>
           </div>
-        </div>
+          </div>
       </nav>
       <div className="mx-5"
       style={{marginTop: "135px"}}
@@ -451,7 +501,11 @@ const PDFTableComponent = () => {
                     extraChargesAdded={extraChargesAdded}
                     extraDiscountsAdded={extraDiscountsAdded}
                     respData={respData}
-                  />
+                    setInvoiceTableData = {setInvoiceTableData}  
+                    additionalCols = {additionalCols} 
+                    additionalHeaders = {additionalHeaders}
+                    tableSpecificAddCols = {tableSpecificAddCols}
+                    />
                 </div>
               </Col>
             </Row>
