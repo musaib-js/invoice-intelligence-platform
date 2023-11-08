@@ -8,6 +8,7 @@ import HumanVerification from "./Tables/HumanVerification";
 const Table = ({
   data,
   invoiceTableData,
+  setInvoiceTableData,
   width,
   invoiceBalance,
   invoiceDate,
@@ -37,6 +38,9 @@ const Table = ({
   extraChargesAdded,
   extraDiscountsAdded,
   respData,
+  additionalCols,
+  additionalHeaders,
+  tableSpecificAddCols
 }) => {
   const [showTable, setShowTable] = useState(false);
   const [showInvoiceTable, setShowInvoiceTable] = useState(false);
@@ -174,7 +178,11 @@ const Table = ({
         invoiceTotalFromtable = {invoiceTotalFromtable}
         rowDataForExtendedPrice={rowDataForExtendedPrice}
         setRowDataForExtendedPrice = {setRowDataForExtendedPrice}
-         />
+        setInvoiceTableData = {setInvoiceTableData}
+        additionalCols = {additionalCols} 
+        additionalHeaders = {additionalHeaders}
+        tableSpecificAddCols = {tableSpecificAddCols}
+        />
       ) : null}
 
     <hr className="featurette-divider"/>
