@@ -74,10 +74,10 @@ export default function ProcessedTable({ invoiceTableData }) {
                   }}
                   data-bs-toggle="tooltip"
                   data-bs-placement="top"
-                  title={`Confidence: ${dataForInvtable[key][colIndex].confidence}`}
+                  title={`Confidence: ${dataForInvtable[key][colIndex]?.confidence}`}
                   key={colIndex}
                 >
-                  {dataForInvtable[key][colIndex].text}
+                  {dataForInvtable[key][colIndex]?.text}
                   <Tooltip id={colIndex} />
                 </td>
               ))}

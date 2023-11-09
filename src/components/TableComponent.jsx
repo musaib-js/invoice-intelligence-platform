@@ -40,7 +40,9 @@ const Table = ({
   respData,
   additionalCols,
   additionalHeaders,
-  tableSpecificAddCols
+  tableSpecificAddCols,
+  numberOfRows,
+  additionalColsTables
 }) => {
   const [showTable, setShowTable] = useState(false);
   const [showInvoiceTable, setShowInvoiceTable] = useState(false);
@@ -182,6 +184,8 @@ const Table = ({
         additionalCols = {additionalCols} 
         additionalHeaders = {additionalHeaders}
         tableSpecificAddCols = {tableSpecificAddCols}
+        numberOfRows = {numberOfRows}
+        additionalColsTables = {additionalColsTables}
         />
       ) : null}
 

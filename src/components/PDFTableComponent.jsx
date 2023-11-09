@@ -63,6 +63,8 @@ const PDFTableComponent = () => {
   const [additionalCols, setAdditionalCols] = useState([])
   const [tableSpecificAddCols, setTableSpecificAddCols] = useState([])
   const [additionalHeaders, setAdditionalHeaders] = useState([])
+  const [numberOfRows, setNumberOfRows] = useState({})
+  const [additionalColsTables, setAdditionalColsTables] = useState([])
     useEffect(() => {
     if (pageNumber === 0) {
       return;
@@ -141,13 +143,14 @@ const PDFTableComponent = () => {
         
         // Get data for additional table specific cols
         const data2 = response.data.response.additional_columns["table_specific_additional_columns"]["table_2"]
-        if (Object.keys(data2).length === 0) {
+        if (data2 && Object.keys(data2).length === 0) {
           setTableSpecificAddCols([]);
           setLoading(false);
           return
         }
 
-        const keys2 = Object.keys(data2);
+        if(data2 && Object.keys(data2).length > 0){
+          const keys2 = Object.keys(data2);
         const additionalTableSpecificCols= [];
 
         for (let i = 0; i < Object.values(data2[keys2[0]]).length; i++) {
@@ -158,8 +161,12 @@ const PDFTableComponent = () => {
           additionalTableSpecificCols.push(obj);
         }
         setTableSpecificAddCols(additionalTableSpecificCols);
+        }
+        else{
+          setTableSpecificAddCols([]);
+        }
 
-
+        setAdditionalColsTables(response.data.response.additional_columns["table_specific_additional_columns"])
         setPdfUrl(response.data.response.pdf_link);
         setInvoiceNum(response.data.response.invoice_metadata.invoice_number);
         setInvoiceDate(response.data.response.invoice_metadata.invoice_date);
@@ -231,6 +238,7 @@ const PDFTableComponent = () => {
         );
         setRespData(response.data.response);
         setAdditionalHeaders(response.data.response.invoice_metadata.processed_table_header_candidates)
+        setNumberOfRows(response.data.response.invoice_metadata.number_of_rows_in_tables)
         setLoading(false);
       })
       .catch((error) => {
@@ -505,6 +513,8 @@ const PDFTableComponent = () => {
                     additionalCols = {additionalCols} 
                     additionalHeaders = {additionalHeaders}
                     tableSpecificAddCols = {tableSpecificAddCols}
+                    numberOfRows = {numberOfRows}
+                    additionalColsTables = {additionalColsTables}
                     />
                 </div>
               </Col>
