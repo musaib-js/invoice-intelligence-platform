@@ -35,6 +35,8 @@ export default function HumanVerification({
   additionalCols,
   tableSpecificAddCols,
   additionalHeaders,
+  numberOfRows,
+  additionalColsTables,
 }) {
   const [extraDiscountsSum, setExtraDiscountsSum] = useState(0);
   const [invoiceTaxesSum, setInvoiceTaxesSum] = useState(0);
@@ -52,12 +54,17 @@ export default function HumanVerification({
   const [dataForEditabletable, setDataForEditableTable] = useState([]);
   const [invNewTableheaders, setInvNewTableHeaders] = useState([]);
   const [dataForAdditionaltable, setDataForAdditionalTable] = useState([]);
-  const [invAdditionalTableheaders, setInvAdditionalTableHeaders] = useState([]);
-  const [dataForTableSpecificAddTab, setDataForTableSpecificAddTab] = useState([]);
+  const [invAdditionalTableheaders, setInvAdditionalTableHeaders] = useState(
+    []
+  );
+  const [dataForTableSpecificAddTab, setDataForTableSpecificAddTab] = useState(
+    []
+  );
   const [additionalTableheaders, setAdditionalTableHeaders] = useState([]);
   const [show, setShow] = useState(false);
   const [showTwo, setShowTwo] = useState(false);
-
+  const [tableNames, setTableNames] = useState([]);
+  const [selectedTable, setSelectedTable] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
@@ -123,15 +130,10 @@ export default function HumanVerification({
 
     setDataForAdditionalTable(additionalCols.slice(1, additionalCols.length));
 
-    setAdditionalTableHeaders(
-      Object.values(tableSpecificAddCols[0]).map((entry) => entry.text)
-    );
-
-    setDataForTableSpecificAddTab(tableSpecificAddCols.slice(1, tableSpecificAddCols.length));
-
     setExtendedPriceColIndex(
       invNewTableheaders.findIndex((header) => header === "Extended Price")
     );
+    setTableNames(Object.keys(numberOfRows));
 
     calculateSum();
   }, [
@@ -141,9 +143,45 @@ export default function HumanVerification({
     extendedPriceColIndex,
     invoiceTableData,
     invNewTableheaders,
-    editableRow
+    editableRow,
   ]);
 
+  const setDataForTableSpecificTable = (tableName) => {
+    setSelectedTable(true)
+    const data2 = additionalColsTables[tableName];
+    if (data2 && Object.keys(data2).length === 0) {
+      setAdditionalTableHeaders([]);
+      setDataForTableSpecificAddTab([]);
+      return;
+    }
+    if (data2 && Object.keys(data2).length > 0) {
+      const keys2 = Object.keys(data2);
+      const additionalTableSpecificCols = [];
+
+      for (let i = 0; i < Object.values(data2[keys2[0]]).length; i++) {
+        const obj = {};
+        for (const key of keys2) {
+          obj[key] = data2[key][i];
+        }
+        additionalTableSpecificCols.push(obj);
+        setAdditionalTableHeaders(
+          Object.values(additionalTableSpecificCols[0]).map(
+            (entry) => entry.text
+          )
+        );
+
+        setDataForTableSpecificAddTab(
+          additionalTableSpecificCols.slice(
+            1,
+            additionalTableSpecificCols.length
+          )
+        );
+      }
+    } else {
+      setAdditionalTableHeaders([]);
+      setDataForTableSpecificAddTab([]);
+    }
+  };
   const generateEmptyRow = () => {
     const emptyRow = {};
     for (let i = 0; i < invNewTableheaders.length; i++) {
@@ -156,6 +194,7 @@ export default function HumanVerification({
   };
 
   const addEmptyRow = () => {
+    console.log("who called me to add an empty row");
     setInvoiceTableData((prevData) => [...prevData, generateEmptyRow()]);
   };
 
@@ -268,6 +307,34 @@ export default function HumanVerification({
       console.error("Error in handleSaveClick:", error);
     }
   };
+  console.log(invNewTableheaders);
+
+  const handleHeaderChange = (e, index) => {
+    const newHeader = e.target.value;
+    const updatedData = [...invoiceTableData];
+    updatedData[0][index].text = newHeader;
+    updatedData[0][index].confidence = 100;
+    setInvoiceTableData(updatedData);
+  };
+
+  const addNewColumn = (e, index) => {
+    try {
+      const updatedData = [...invoiceTableData];
+      updatedData[0][Object.keys(updatedData[0]).length] =
+        additionalCols[0][index];
+      for (let i = 1; i < updatedData.length; i++) {
+        updatedData[i][Object.keys(updatedData[0]).length - 1] =
+          additionalCols[i][index];
+      }
+      toast.success("Column added successfully!");
+      setShow(false);
+      setShowTwo(false);
+      setInvoiceTableData(updatedData);
+    } catch (error) {
+      console.error("An error occurred:", error);
+      toast.error("An error occurred while adding the column.");
+    }
+  };
 
   return (
     <>
@@ -300,7 +367,10 @@ export default function HumanVerification({
                         textOverflow: "ellipsis",
                       }}
                     >
-                      <select className="form-select">
+                      <select
+                        className="form-select"
+                        onChange={(e) => handleHeaderChange(e, index)}
+                      >
                         <option value={header}>{header}</option>
                         {additionalHeaders.map((option, index) => (
                           <option key={index} value={option}>
@@ -575,9 +645,11 @@ export default function HumanVerification({
                         backgroundColor: "#FFF2CD",
                         textTransform: "capitalize",
                         verticalAlign: "middle",
+                        cursor: "pointer",
                       }}
                       key={index}
                       className="resizable-header"
+                      onClick={(e) => addNewColumn(e, index)}
                     >
                       <ResizableCell width={100}>
                         <div
@@ -640,14 +712,38 @@ export default function HumanVerification({
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <div className="d-flex justify-content-center">
+            {tableNames.map(
+              (tableName) =>
+                tableName && (
+                  <button
+                    key={tableName}
+                    onClick={() => {
+                      setDataForTableSpecificTable(tableName);
+                    }}
+                    style={{ textTransform: "capitalize" }}
+                    className="btn btn-warning mx-2 mb-2"
+                  >
+                    {tableName}
+                  </button>
+                )
+            )}
+          </div>
           <div
             style={{
               width: width || "100%",
               height: "471px",
-              overflowX: "scroll",
-              overflowY: "scroll",
+              overflowX: "auto",
+              overflowY: "auto",
             }}
           >
+            {additionalTableheaders.length === 0 && !selectedTable ? (
+            <div className="mx-auto text-center">Please select a table to view the additional columns</div>
+            ) : 
+              additionalTableheaders.length === 0 && selectedTable ? (
+              <div className="mx-auto text-center">This table doesn't contain any additional columns</div>
+            ):
+            (
             <table className="table table-striped table-responsive">
               <thead>
                 <tr>
@@ -677,31 +773,34 @@ export default function HumanVerification({
                 </tr>
               </thead>
               <tbody>
-                {Object.keys(dataForTableSpecificAddTab).map((key, rowIndex) => (
-                  <tr key={rowIndex}>
-                    {dataForTableSpecificAddTab.map((header, colIndex) => (
-                      <td
-                        style={{
-                          backgroundColor: `${
-                            dataForTableSpecificAddTab[key][colIndex]?.confidence <
-                            80
-                              ? "#A9A9A9"
-                              : null
-                          }`,
-                        }}
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title={`Confidence: ${dataForTableSpecificAddTab[key][colIndex]?.confidence}`}
-                        key={colIndex}
-                      >
-                        {dataForTableSpecificAddTab[key][colIndex]?.text}
-                        <Tooltip id={colIndex} />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+                {Object.keys(dataForTableSpecificAddTab).map(
+                  (key, rowIndex) => (
+                    <tr key={rowIndex}>
+                      {dataForTableSpecificAddTab.map((header, colIndex) => (
+                        <td
+                          style={{
+                            backgroundColor: `${
+                              dataForTableSpecificAddTab[key][colIndex]
+                                ?.confidence < 80
+                                ? "#A9A9A9"
+                                : null
+                            }`,
+                          }}
+                          data-bs-toggle="tooltip"
+                          data-bs-placement="top"
+                          title={`Confidence: ${dataForTableSpecificAddTab[key][colIndex]?.confidence}`}
+                          key={colIndex}
+                        >
+                          {dataForTableSpecificAddTab[key][colIndex]?.text}
+                          <Tooltip id={colIndex} />
+                        </td>
+                      ))}
+                    </tr>
+                  )
+                )}
               </tbody>
             </table>
+            )}
           </div>
         </Modal.Body>
         <Modal.Footer>
