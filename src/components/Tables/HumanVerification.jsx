@@ -65,6 +65,8 @@ export default function HumanVerification({
   const [showTwo, setShowTwo] = useState(false);
   const [tableNames, setTableNames] = useState([]);
   const [selectedTable, setSelectedTable] = useState(false);
+  const [selectedTableName, setSelectedTableName] = useState("");
+  const [addTabData, setAddTabData] = useState([]);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
@@ -148,10 +150,12 @@ export default function HumanVerification({
 
   const setDataForTableSpecificTable = (tableName) => {
     setSelectedTable(true)
+    setSelectedTableName(tableName)
     const data2 = additionalColsTables[tableName];
     if (data2 && Object.keys(data2).length === 0) {
       setAdditionalTableHeaders([]);
       setDataForTableSpecificAddTab([]);
+      setAddTabData([]);
       return;
     }
     if (data2 && Object.keys(data2).length > 0) {
@@ -169,7 +173,7 @@ export default function HumanVerification({
             (entry) => entry.text
           )
         );
-
+        setAddTabData(additionalTableSpecificCols);
         setDataForTableSpecificAddTab(
           additionalTableSpecificCols.slice(
             1,
@@ -182,6 +186,7 @@ export default function HumanVerification({
       setDataForTableSpecificAddTab([]);
     }
   };
+
   const generateEmptyRow = () => {
     const emptyRow = {};
     for (let i = 0; i < invNewTableheaders.length; i++) {
@@ -335,6 +340,34 @@ export default function HumanVerification({
       toast.error("An error occurred while adding the column.");
     }
   };
+
+  const addColumnFromTableSpecificAdditionalColumns = (e, index) => {
+    console.log("who called me to add a column");
+    const updatedData = [...invoiceTableData];
+    if(selectedTableName === "table_1"){
+      updatedData[0][Object.keys(updatedData[0]).length] = addTabData[0][index]; 
+      for (let i = 1; i < updatedData.length; i++) {
+        const columnIndex = Object.keys(updatedData[0]).length - 1;
+        if (
+          dataForTableSpecificAddTab[i] &&
+          dataForTableSpecificAddTab[i].length > index
+        ) {
+          updatedData[i][columnIndex] =
+            dataForTableSpecificAddTab[i][index]
+        } else {
+          updatedData[i][columnIndex] = { text: "", confidence: 1 };
+        }
+      }
+      
+      toast.success("Column added successfully!");
+      setShowTwo(false);
+      setInvoiceTableData(updatedData);
+    }
+    else{
+      const startingIndex = numberOfRows[selectedTableName]
+      console.log("The starting index is", startingIndex);
+    }
+  }
 
   return (
     <>
@@ -753,9 +786,11 @@ export default function HumanVerification({
                         backgroundColor: "#FFF2CD",
                         textTransform: "capitalize",
                         verticalAlign: "middle",
+                        cursor: "pointer"
                       }}
                       key={index}
                       className="resizable-header"
+                      onClick={(e) => addColumnFromTableSpecificAdditionalColumns(e, index)}
                     >
                       <ResizableCell width={100}>
                         <div
