@@ -79,8 +79,9 @@ export default function HumanVerification({
 
   const handleCloseThree = () => setShowThree(false);
   const handleShowThree = () => setShowThree(true);
-
-  useEffect(() => {}, [extraDiscountsSum, invoiceTaxesSum]);
+  const [taxEdit, setTaxEdit] = useState(false);
+  const [discountEdit, setDiscountEdit] = useState(false);
+  const [calculatedSum, setCalculatedSum] = useState(0);
   useEffect(() => {
     const calculateSum = () => {
       let updatedSum = 0;
@@ -95,8 +96,11 @@ export default function HumanVerification({
       setSum(updatedSum);
     };
 
-    if (
-      extraDiscountsAdded?.[0] === "NA" ||
+    if (discountEdit){
+      return
+    }
+    else if(
+     extraDiscountsAdded?.[0] === "NA" ||
       extraDiscountsAdded?.length === 0 ||
       isNaN(extraDiscountsAdded?.[0])
     ) {
@@ -105,8 +109,11 @@ export default function HumanVerification({
       setDiscounts(extraDiscountsAdded);
     }
 
-    if (
-      extraChargesAdded?.[0] === "NA" ||
+    if (taxEdit){
+      return
+    }
+    else if(
+     extraChargesAdded?.[0] === "NA" ||
       extraChargesAdded?.length === 0 ||
       isNaN(extraChargesAdded?.[0])
     ) {
@@ -152,6 +159,7 @@ export default function HumanVerification({
     setTableNames(Object.keys(numberOfRows));
 
     calculateSum();
+    findCalculatedSum()
   }, [
     discounts,
     taxes,
@@ -162,6 +170,25 @@ export default function HumanVerification({
     editableRow,
   ]);
 
+  const handleDiscountChange = (e) => {
+    const discountValue = parseFloat(e.target.value);
+    setExtraDiscountsSum(discountValue);
+    setDiscountEdit(true);
+    setDiscounts([discountValue]);
+  };
+  
+  const handleTaxChange = (e) => {
+    const taxValue = parseFloat(e.target.value);
+    setInvoiceTaxesSum(taxValue);
+    setTaxEdit(true);
+    setTaxes([taxValue]);
+  };
+
+  const findCalculatedSum = () =>{
+    const calcSum = sum - extraDiscountsSum + parseFloat(invoiceTaxesSum)
+    setCalculatedSum(calcSum)
+    return calcSum.toFixed(2)
+  }
   const setDataForTableSpecificTable = (tableName) => {
     setSelectedTable(true);
     setSelectedTableName(tableName);
@@ -215,13 +242,6 @@ export default function HumanVerification({
   const addEmptyRow = () => {
     console.log("who called me to add an empty row");
     setInvoiceTableData((prevData) => [...prevData, generateEmptyRow()]);
-  };
-
-  const handleDiscountChange = (e) => {
-    setExtraDiscountsSum(parseFloat(e.target.value));
-  };
-  const handleTaxChange = (e) => {
-    setInvoiceTaxesSum(parseFloat(e.target.value));
   };
 
   // Function to handle the edit click
@@ -673,11 +693,9 @@ export default function HumanVerification({
                   >
                     {" "}
                     $
-                    {(
-                      sum -
-                      extraDiscountsSum +
-                      parseFloat(invoiceTaxesSum)
-                    ).toFixed(2)}
+                    {
+                     calculatedSum
+                    }
                   </ListGroup.Item>
                 </ListGroup>
               </p>
