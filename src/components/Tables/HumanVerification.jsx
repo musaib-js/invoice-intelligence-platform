@@ -185,9 +185,9 @@ export default function HumanVerification({
   };
 
   const findCalculatedSum = () =>{
-    const calcSum = sum - extraDiscountsSum + parseFloat(invoiceTaxesSum)
+    const calcSum = (sum - extraDiscountsSum + parseFloat(invoiceTaxesSum)).toFixed(2)
     setCalculatedSum(calcSum)
-    return calcSum.toFixed(2)
+    return calcSum
   }
   const setDataForTableSpecificTable = (tableName) => {
     setSelectedTable(true);
