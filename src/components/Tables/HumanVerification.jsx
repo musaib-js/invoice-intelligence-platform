@@ -169,14 +169,27 @@ export default function HumanVerification({
   ]);
 
   const handleDiscountChange = (e) => {
-    const discountValue = parseFloat(e.target.value);
+    let discountValue
+    if(isNaN(e.target.value) || !e.target.value){
+      discountValue = 0;
+    }
+    else{
+    discountValue = parseFloat(e.target.value);
+    }
     setExtraDiscountsSum(discountValue);
     setDiscountEdit(true);
     setDiscounts([discountValue]);
   };
 
   const handleTaxChange = (e) => {
-    const taxValue = parseFloat(e.target.value);
+    let taxValue
+    if(isNaN(e.target.value) || !e.target.value){
+      taxValue = 0;
+    }
+    else{
+      taxValue = parseFloat(e.target.value);
+    }
+    
     setInvoiceTaxesSum(taxValue);
     setTaxEdit(true);
     setTaxes([taxValue]);
@@ -194,6 +207,7 @@ export default function HumanVerification({
     };
     findCalculatedSum();
   }, [discounts, taxes]);
+
   const setDataForTableSpecificTable = (tableName) => {
     setSelectedTable(true);
     setSelectedTableName(tableName);
@@ -258,6 +272,7 @@ export default function HumanVerification({
         dataForEditabletable[rowId][invNewTableheaders.indexOf(header)]?.text
       );
     });
+    console.log("the initial data", initialRowData)
     setPayload({ row_id: rowId, row_data: initialRowData });
   };
 
@@ -421,10 +436,9 @@ export default function HumanVerification({
       toast.success("Column added successfully!");
       setShowTwo(false);
       setInvoiceTableData(updatedData);
-    } else {
+    }  else {
       const startingIndex = tableStartIndex[selectedTableName];
-      const nextStartingIndex =
-        tableStartIndex[selectedTableName] + numberOfRows[selectedTableName];
+      const nextStartingIndex = tableStartIndex[selectedTableName] + numberOfRows[selectedTableName];
       console.log("The starting index is", startingIndex);
       for (let i = startingIndex; i < nextStartingIndex - 1; i++) {
         const columnIndex = headerIndex;
@@ -528,13 +542,13 @@ export default function HumanVerification({
                     style={{
                       cursor: "pointer",
                       backgroundColor: `${
-                        dataForEditabletable[key][colIndex]?.confidence < 80
+                        dataForEditabletable[key][colIndex]?.confidence < 60
                           ? "#F8C8BE"
                           : null
                       }`,
                     }}
                     className={`${
-                      dataForEditabletable[key][colIndex]?.confidence < 80
+                      dataForEditabletable[key][colIndex]?.confidence < 60
                         ? "border border-danger"
                         : "border border-success"
                     }`}
@@ -641,11 +655,15 @@ export default function HumanVerification({
                 >
                   {editDiscount ? (
                     <input
-                      // type="number"
+                      type="number"
                       onChange={(e) => handleDiscountChange(e)}
                       className="form-control"
                       value={parseFloat(extraDiscountsSum)}
-                      width={"50px"}
+                      width={"100%"}
+                      style={{
+                        MozAppearance: 'textfield', 
+                        appearance: 'textfield', 
+                      }}
                     />
                   ) : (
                     extraDiscountsSum.toFixed(2)
@@ -663,11 +681,16 @@ export default function HumanVerification({
                 >
                   {editTax ? (
                     <input
-                      // type="number"
+                      type="number"
                       onChange={(e) => handleTaxChange(e)}
                       className="form-control"
                       value={parseFloat(invoiceTaxesSum)}
-                      width={"50px"}
+                      width={"100%"}
+                      style={{
+                        MozAppearance: 'textfield', 
+                        appearance: 'textfield', 
+                        width: '100%',
+                      }}
                     />
                   ) : (
                     invoiceTaxesSum?.toFixed(2)
