@@ -42,7 +42,8 @@ const Table = ({
   additionalHeaders,
   tableSpecificAddCols,
   numberOfRows,
-  additionalColsTables
+  additionalColsTables,
+  setAdditionalCols
 }) => {
   const [showTable, setShowTable] = useState(false);
   const [showInvoiceTable, setShowInvoiceTable] = useState(false);
@@ -186,6 +187,8 @@ const Table = ({
         tableSpecificAddCols = {tableSpecificAddCols}
         numberOfRows = {numberOfRows}
         additionalColsTables = {additionalColsTables}
+        extraChargesAdded = {extraChargesAdded}
+        setAdditionalCols={setAdditionalCols}
         />
       ) : null}
 
