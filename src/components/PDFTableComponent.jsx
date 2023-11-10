@@ -60,12 +60,12 @@ const PDFTableComponent = () => {
     "Human Verification Required",
     "Human Verification Not Required",
   ];
-  const [additionalCols, setAdditionalCols] = useState([])
-  const [tableSpecificAddCols, setTableSpecificAddCols] = useState([])
-  const [additionalHeaders, setAdditionalHeaders] = useState([])
-  const [numberOfRows, setNumberOfRows] = useState({})
-  const [additionalColsTables, setAdditionalColsTables] = useState([])
-    useEffect(() => {
+  const [additionalCols, setAdditionalCols] = useState([]);
+  const [tableSpecificAddCols, setTableSpecificAddCols] = useState([]);
+  const [additionalHeaders, setAdditionalHeaders] = useState([]);
+  const [numberOfRows, setNumberOfRows] = useState({});
+  const [additionalColsTables, setAdditionalColsTables] = useState([]);
+  useEffect(() => {
     if (pageNumber === 0) {
       return;
     }
@@ -122,51 +122,36 @@ const PDFTableComponent = () => {
         setInvoiceTableData(invoicetableData);
 
         // Get data for additional table
-        const data1 = response.data.response.additional_columns["combined_additional_columns"];
-        if (Object.keys(data1).length === 0) {
+        const data1 =
+          response.data.response.additional_columns[
+            "combined_additional_columns"
+          ];
+        if (data1 && Object.keys(data1).length === 0) {
           setAdditionalCols([]);
           setLoading(false);
-          return
+          return;
         }
+        if (data1 && Object.keys(data1).length > 0) {
+          const keys1 = Object.keys(data1);
+          const additionaltableData = [];
 
-        const keys1 = Object.keys(data1);
-        const additionaltableData = [];
-
-        for (let i = 0; i < Object.values(data1[keys1[0]]).length; i++) {
-          const obj = {};
-          for (const key of keys1) {
-            obj[key] = data1[key][i];
+          for (let i = 0; i < Object.values(data1[keys1[0]]).length; i++) {
+            const obj = {};
+            for (const key of keys1) {
+              obj[key] = data1[key][i];
+            }
+            additionaltableData.push(obj);
           }
-          additionaltableData.push(obj);
-        }
-        setAdditionalCols(additionaltableData);
-        
-        // Get data for additional table specific cols
-        const data2 = response.data.response.additional_columns["table_specific_additional_columns"]["table_2"]
-        if (data2 && Object.keys(data2).length === 0) {
-          setTableSpecificAddCols([]);
-          setLoading(false);
-          return
+          setAdditionalCols(additionaltableData);
+        } else {
+          setAdditionalCols([]);
         }
 
-        if(data2 && Object.keys(data2).length > 0){
-          const keys2 = Object.keys(data2);
-        const additionalTableSpecificCols= [];
-
-        for (let i = 0; i < Object.values(data2[keys2[0]]).length; i++) {
-          const obj = {};
-          for (const key of keys2) {
-            obj[key] = data2[key][i];
-          }
-          additionalTableSpecificCols.push(obj);
-        }
-        setTableSpecificAddCols(additionalTableSpecificCols);
-        }
-        else{
-          setTableSpecificAddCols([]);
-        }
-
-        setAdditionalColsTables(response.data.response.additional_columns["table_specific_additional_columns"])
+        setAdditionalColsTables(
+          response.data.response.additional_columns[
+            "table_specific_additional_columns"
+          ]
+        );
         setPdfUrl(response.data.response.pdf_link);
         setInvoiceNum(response.data.response.invoice_metadata.invoice_number);
         setInvoiceDate(response.data.response.invoice_metadata.invoice_date);
@@ -237,8 +222,13 @@ const PDFTableComponent = () => {
           response.data.response.invoice_metadata.extra_discounts_added
         );
         setRespData(response.data.response);
-        setAdditionalHeaders(response.data.response.invoice_metadata.processed_table_header_candidates)
-        setNumberOfRows(response.data.response.invoice_metadata.number_of_rows_in_tables)
+        setAdditionalHeaders(
+          response.data.response.invoice_metadata
+            .processed_table_header_candidates
+        );
+        setNumberOfRows(
+          response.data.response.invoice_metadata.number_of_rows_in_tables
+        );
         setLoading(false);
       })
       .catch((error) => {
@@ -269,8 +259,13 @@ const PDFTableComponent = () => {
     const payload = {
       invoice_name: searchInput,
       filters: {
-        human_verification: selectedFilter === "All" ? 'both' : selectedFilter === "Human Verification Required" ? 'true' : 'false',
-      }
+        human_verification:
+          selectedFilter === "All"
+            ? "both"
+            : selectedFilter === "Human Verification Required"
+            ? "true"
+            : "false",
+      },
     };
     if (searchInput !== "") {
       const apiUrl = `${process.env.REACT_APP_SEARCH_URL}`;
@@ -301,9 +296,12 @@ const PDFTableComponent = () => {
           width: "100%",
         }}
       >
-          <div className="row"  style={{
-          width: "100%",
-        }}>
+        <div
+          className="row"
+          style={{
+            width: "100%",
+          }}
+        >
           <div
             className="navbar-brand mb-0 h1 m-auto col-md-6 float-start"
             style={{ fontSize: "1.4em", letterSpacing: "1px" }}
@@ -311,7 +309,7 @@ const PDFTableComponent = () => {
             Invoice Intelligence Platform
           </div>
           <div className="col-md-6 float-end">
-            <div className="input-group" style={{ width: "100%"}}>
+            <div className="input-group" style={{ width: "100%" }}>
               <select
                 className="form-select"
                 onChange={(e) => setSelectedFilter(e.target.value)}
@@ -346,61 +344,59 @@ const PDFTableComponent = () => {
                 </svg>
               </span>
               {invoiceNumArray.length > 0 && searchResultVisible ? (
-              <Scrollbars
-                id="suggestions"
-                style={{
-                  width: "100%",
-                  maxWidth: "auto",
-                  position: "absolute",
-                  zIndex: 1,
-                  height: "140px",
-                  background: "white",
-                  border: "1px solid #ccc",
-                  borderRadius: "8px",
-                  maxHeight: "250px",
-                  scrollbarWidth: "thin",
-                  scrollbarColor: "#FDFFD0",
-                  paddingRight: "12px",
-                  marginRight: "12px",
-                  marginTop: "40px"
-                }}
-              >
-                <div style={{ height: "30px" }}>Matching Invoice Numbers</div>
-                <hr className="featurette-divider mt-0 mb-0"></hr>
-                {invoiceNumArray.map((number) => (
-                  <>
-                    <div
-                      style={{ height: "30px", cursor: "pointer" }}
-                      key={number}
-                      onClick={() => {
-                        setPageNumber(number.invoice_number);
-                        setTempValue(number.invoice_number);
-                        setSearchResutsVisible(false);
-                      }}
-                      className="d-flex justify-content-between"
-                    >
-                      <div className="mx-2 text-gray text-sm">
-                        Invoice Number: {number.invoice_number}
-                      </div>
+                <Scrollbars
+                  id="suggestions"
+                  style={{
+                    width: "100%",
+                    maxWidth: "auto",
+                    position: "absolute",
+                    zIndex: 1,
+                    height: "140px",
+                    background: "white",
+                    border: "1px solid #ccc",
+                    borderRadius: "8px",
+                    maxHeight: "250px",
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "#FDFFD0",
+                    paddingRight: "12px",
+                    marginRight: "12px",
+                    marginTop: "40px",
+                  }}
+                >
+                  <div style={{ height: "30px" }}>Matching Invoice Numbers</div>
+                  <hr className="featurette-divider mt-0 mb-0"></hr>
+                  {invoiceNumArray.map((number) => (
+                    <>
                       <div
-                        className="mx-2 mt-3 text-muted fst-italic"
-                        style={{ fontSize: "10px" }}
+                        style={{ height: "30px", cursor: "pointer" }}
+                        key={number}
+                        onClick={() => {
+                          setPageNumber(number.invoice_number);
+                          setTempValue(number.invoice_number);
+                          setSearchResutsVisible(false);
+                        }}
+                        className="d-flex justify-content-between"
                       >
-                        Score: {number.matching_score}
+                        <div className="mx-2 text-gray text-sm">
+                          Invoice Number: {number.invoice_number}
+                        </div>
+                        <div
+                          className="mx-2 mt-3 text-muted fst-italic"
+                          style={{ fontSize: "10px" }}
+                        >
+                          Score: {number.matching_score}
+                        </div>
                       </div>
-                    </div>
-                    <hr className="featurette-divider mt-0 mb-0"></hr>
-                  </>
-                ))}
-              </Scrollbars>
-            ) : null}
+                      <hr className="featurette-divider mt-0 mb-0"></hr>
+                    </>
+                  ))}
+                </Scrollbars>
+              ) : null}
             </div>
           </div>
-          </div>
+        </div>
       </nav>
-      <div className="mx-5"
-      style={{marginTop: "135px"}}
-      >
+      <div className="mx-5" style={{ marginTop: "135px" }}>
         {loading ? (
           <ColorRing
             visible={true}
@@ -509,13 +505,14 @@ const PDFTableComponent = () => {
                     extraChargesAdded={extraChargesAdded}
                     extraDiscountsAdded={extraDiscountsAdded}
                     respData={respData}
-                    setInvoiceTableData = {setInvoiceTableData}  
-                    additionalCols = {additionalCols} 
-                    additionalHeaders = {additionalHeaders}
-                    tableSpecificAddCols = {tableSpecificAddCols}
-                    numberOfRows = {numberOfRows}
-                    additionalColsTables = {additionalColsTables}
-                    />
+                    setInvoiceTableData={setInvoiceTableData}
+                    additionalCols={additionalCols}
+                    setAdditionalCols={setAdditionalCols}
+                    additionalHeaders={additionalHeaders}
+                    tableSpecificAddCols={tableSpecificAddCols}
+                    numberOfRows={numberOfRows}
+                    additionalColsTables={additionalColsTables}
+                  />
                 </div>
               </Col>
             </Row>

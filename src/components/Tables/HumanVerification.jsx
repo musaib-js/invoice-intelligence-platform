@@ -33,10 +33,12 @@ export default function HumanVerification({
   invTableheaders,
   rowDataForExtendedPrice,
   additionalCols,
+  setAdditionalCols,
   tableSpecificAddCols,
   additionalHeaders,
   numberOfRows,
   additionalColsTables,
+  extraChargesAdded,
 }) {
   const [extraDiscountsSum, setExtraDiscountsSum] = useState(0);
   const [invoiceTaxesSum, setInvoiceTaxesSum] = useState(0);
@@ -63,16 +65,25 @@ export default function HumanVerification({
   const [additionalTableheaders, setAdditionalTableHeaders] = useState([]);
   const [show, setShow] = useState(false);
   const [showTwo, setShowTwo] = useState(false);
+  const [showThree, setShowThree] = useState(false);
   const [tableNames, setTableNames] = useState([]);
   const [selectedTable, setSelectedTable] = useState(false);
   const [selectedTableName, setSelectedTableName] = useState("");
   const [addTabData, setAddTabData] = useState([]);
+  const [headerIndex, setHeaderIndex] = useState(null);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   const handleCloseTwo = () => setShowTwo(false);
   const handleShowTwo = () => setShowTwo(true);
 
+  const handleCloseThree = () => setShowThree(false);
+  const handleShowThree = () => setShowThree(true);
+
+  console.log("The additional cols are", additionalCols);
+  console.log("check", Object.keys(additionalCols[0]));
+
+  useEffect(() => {}, [extraDiscountsSum, invoiceTaxesSum]);
   useEffect(() => {
     const calculateSum = () => {
       let updatedSum = 0;
@@ -98,13 +109,13 @@ export default function HumanVerification({
     }
 
     if (
-      invoiceTaxes?.[0] === "NA" ||
-      invoiceTaxes?.length === 0 ||
-      isNaN(invoiceTaxes?.[0])
+      extraChargesAdded?.[0] === "NA" ||
+      extraChargesAdded?.length === 0 ||
+      isNaN(extraChargesAdded?.[0])
     ) {
       setTaxes([0]);
     } else {
-      setTaxes(invoiceTaxes);
+      setTaxes(extraChargesAdded);
     }
     setExtraDiscountsSum(
       discounts?.[0] === "NA" ||
@@ -126,11 +137,17 @@ export default function HumanVerification({
 
     setDataForEditableTable(invoiceTableData.slice(1, invoiceTableData.length));
 
-    setInvAdditionalTableHeaders(
-      Object.values(additionalCols[0]).map((entry) => entry.text)
-    );
-
-    setDataForAdditionalTable(additionalCols.slice(1, additionalCols.length));
+    if (Object.keys(additionalCols[0]).length === 0) {
+      console.log("coming here");
+      setInvAdditionalTableHeaders([]);
+      setDataForAdditionalTable([]);
+    } else {
+      console.log("coming here aa");
+      setInvAdditionalTableHeaders(
+        Object.values(additionalCols[0]).map((entry) => entry.text)
+      );
+      setDataForAdditionalTable(additionalCols.slice(1, additionalCols.length));
+    }
 
     setExtendedPriceColIndex(
       invNewTableheaders.findIndex((header) => header === "Extended Price")
@@ -149,8 +166,8 @@ export default function HumanVerification({
   ]);
 
   const setDataForTableSpecificTable = (tableName) => {
-    setSelectedTable(true)
-    setSelectedTableName(tableName)
+    setSelectedTable(true);
+    setSelectedTableName(tableName);
     const data2 = additionalColsTables[tableName];
     if (data2 && Object.keys(data2).length === 0) {
       setAdditionalTableHeaders([]);
@@ -331,43 +348,94 @@ export default function HumanVerification({
         updatedData[i][Object.keys(updatedData[0]).length - 1] =
           additionalCols[i][index];
       }
+      console.log("the add cols are", additionalCols);
+      // // Remove the added column from additionalCols
+      // const updatedAdditionalCols = additionalCols.map((col) => {
+      //   const updatedCol = { ...col };
+      //   delete updatedCol[index];
+      //   return updatedCol;
+      // });
       toast.success("Column added successfully!");
       setShow(false);
       setShowTwo(false);
       setInvoiceTableData(updatedData);
+      // setAdditionalCols(updatedAdditionalCols);
     } catch (error) {
-      console.error("An error occurred:", error);
+      console.log("An error occurred:", error);
       toast.error("An error occurred while adding the column.");
     }
   };
 
-  const addColumnFromTableSpecificAdditionalColumns = (e, index) => {
+  const addColumnFromTableSpecificAdditionalColumns = async (e, index) => {
+    let startIndex = 0;
+    const tableStartIndex = {};
+    Object.keys(numberOfRows).forEach((tableName) => {
+      tableStartIndex[tableName] = startIndex;
+      startIndex += numberOfRows[tableName];
+    });
     console.log("who called me to add a column");
     const updatedData = [...invoiceTableData];
-    if(selectedTableName === "table_1"){
-      updatedData[0][Object.keys(updatedData[0]).length] = addTabData[0][index]; 
+    if (selectedTableName === "table_1") {
+      updatedData[0][Object.keys(updatedData[0]).length] = addTabData[0][index];
       for (let i = 1; i < updatedData.length; i++) {
         const columnIndex = Object.keys(updatedData[0]).length - 1;
         if (
           dataForTableSpecificAddTab[i] &&
           dataForTableSpecificAddTab[i].length > index
         ) {
-          updatedData[i][columnIndex] =
-            dataForTableSpecificAddTab[i][index]
+          console.log(
+            "pehle wale mai its",
+            dataForTableSpecificAddTab[i].length
+          );
+          updatedData[i][columnIndex] = dataForTableSpecificAddTab[i][index];
         } else {
+          console.log(
+            "pehle wale mai its",
+            dataForTableSpecificAddTab[i].length
+          );
           updatedData[i][columnIndex] = { text: "", confidence: 1 };
         }
       }
-      
       toast.success("Column added successfully!");
       setShowTwo(false);
       setInvoiceTableData(updatedData);
-    }
-    else{
-      const startingIndex = numberOfRows[selectedTableName]
+    } else {
+      const startingIndex = tableStartIndex[selectedTableName];
+      const nextStartingIndex =
+        tableStartIndex[selectedTableName] + numberOfRows[selectedTableName];
       console.log("The starting index is", startingIndex);
+      for (let i = startingIndex; i < nextStartingIndex - 1; i++) {
+        const columnIndex = headerIndex;
+        console.log("The column index is", columnIndex);
+        console.log(
+          "The data for table specific add tab is",
+          dataForTableSpecificAddTab
+        );
+        const dataIndex = i === startingIndex ? 0 : i - startingIndex;
+        console.log("the row", dataForTableSpecificAddTab[dataIndex]);
+        console.log("the index", dataIndex);
+        if (dataIndex < dataForTableSpecificAddTab.length) {
+          console.log("coming here one");
+          if (!updatedData[i]) {
+            console.log("Creating new entry for index", i);
+            updatedData[i] = {};
+          }
+          updatedData[i][columnIndex] =
+            dataForTableSpecificAddTab[dataIndex][index];
+        } else {
+          console.log("coming here two");
+          if (!updatedData[i]) {
+            console.log("Creating new entry for index", i);
+            updatedData[i] = {};
+          }
+          updatedData[i][columnIndex] = { text: "", confidence: 1 };
+        }
+      }
+      toast.success("Column merged successfully!");
+      setShowTwo(false);
+      setInvoiceTableData(updatedData);
     }
-  }
+  };
 
   return (
     <>
@@ -406,7 +474,11 @@ export default function HumanVerification({
                       >
                         <option value={header}>{header}</option>
                         {additionalHeaders.map((option, index) => (
-                          <option key={index} value={option}>
+                          <option
+                            key={index}
+                            value={option}
+                            disabled={invNewTableheaders.includes(option)}
+                          >
                             {option}
                           </option>
                         ))}
@@ -479,50 +551,52 @@ export default function HumanVerification({
             ))}
           </tbody>
         </table>
-        <div className="d-flex justify-content-center">
-          <div className="mx-2">
-            <PlusCircleFill
-              onClick={() => {
-                addEmptyRow();
-              }}
-              className="mx-auto fs-32"
-              style={{
-                fontSize: "2rem",
-                color: "yellow",
-                cursor: "pointer",
-              }}
-            ></PlusCircleFill>
-            <p className="mx-auto">Add Row</p>
-          </div>
+      </div>
+      <div className="d-flex justify-content-center mt-2 p-2 border border-gray rounded mx-2 text-center">
+        <div className="mx-2 text-center">
+          <PlusCircleFill
+            onClick={() => {
+              addEmptyRow();
+            }}
+            className="mx-auto fs-32"
+            style={{
+              fontSize: "2rem",
+              color: "yellow",
+              cursor: "pointer",
+            }}
+          ></PlusCircleFill>
+          <p className="mx-auto text-center">Add Row</p>
+        </div>
 
-          <div className="mx-2">
-            <PlusCircleFill
-              onClick={() => {
-                handleShow();
-              }}
-              className="mx-auto fs-32"
-              style={{
-                fontSize: "2rem",
-                color: "yellow",
-                cursor: "pointer",
-              }}
-            ></PlusCircleFill>
-            <p className="mx-auto">Add Column From Combined</p>
-          </div>
-          <div className="mx-2">
-            <PlusCircleFill
-              onClick={() => {
-                handleShowTwo();
-              }}
-              className="mx-auto fs-32"
-              style={{
-                fontSize: "2rem",
-                color: "yellow",
-                cursor: "pointer",
-              }}
-            ></PlusCircleFill>
-            <p className="mx-auto">Add Column From Table</p>
-          </div>
+        <div className="mx-2 text-center">
+          <PlusCircleFill
+            onClick={() => {
+              handleShow();
+            }}
+            className="mx-auto fs-32"
+            style={{
+              fontSize: "2rem",
+              color: "yellow",
+              cursor: "pointer",
+            }}
+            title="Click to view the processed columns"
+          ></PlusCircleFill>
+          <p className="mx-auto text-center">Add Processed Columns</p>
+        </div>
+        <div className="mx-2 text-center">
+          <PlusCircleFill
+            onClick={() => {
+              handleShowTwo();
+            }}
+            className="mx-auto fs-32"
+            style={{
+              fontSize: "2rem",
+              color: "yellow",
+              cursor: "pointer",
+            }}
+            title="Click to view the unrecognized columns that were not compatible for combining with the processed columns"
+          ></PlusCircleFill>
+          <p className="mx-auto text-center">Unrecognized Columns</p>
         </div>
       </div>
       <Card className="mx-2 my-2 mb-4 p-0">
@@ -590,7 +664,12 @@ export default function HumanVerification({
                         extraDiscountsSum +
                         invoiceTaxesSum -
                         invoiceTotalFromtable >
-                      30
+                        0 ||
+                      sum -
+                        extraDiscountsSum +
+                        invoiceTaxesSum -
+                        invoiceTotalFromtable <
+                        -0
                         ? "text-danger fw-bolder border-danger"
                         : "text-success fw-bolder border-success"
                     }`}
@@ -614,10 +693,10 @@ export default function HumanVerification({
                   className={
                     invoiceTotalFromtable -
                       (sum - extraDiscountsSum + invoiceTaxesSum) >
-                      30 ||
+                      0 ||
                     invoiceTotalFromtable -
                       (sum - extraDiscountsSum + invoiceTaxesSum) <
-                      -30
+                      -0
                       ? "text-danger fw-bolder border-danger"
                       : "text-success fw-bolder border-success"
                   }
@@ -765,78 +844,120 @@ export default function HumanVerification({
           <div
             style={{
               width: width || "100%",
-              height: "471px",
+              height: "300px",
               overflowX: "auto",
               overflowY: "auto",
             }}
           >
             {additionalTableheaders.length === 0 && !selectedTable ? (
-            <div className="mx-auto text-center">Please select a table to view the additional columns</div>
-            ) : 
-              additionalTableheaders.length === 0 && selectedTable ? (
-              <div className="mx-auto text-center">This table doesn't contain any additional columns</div>
-            ):
-            (
-            <table className="table table-striped table-responsive">
-              <thead>
-                <tr>
-                  {additionalTableheaders.map((header, index) => (
-                    <th
-                      style={{
-                        backgroundColor: "#FFF2CD",
-                        textTransform: "capitalize",
-                        verticalAlign: "middle",
-                        cursor: "pointer"
-                      }}
-                      key={index}
-                      className="resizable-header"
-                      onClick={(e) => addColumnFromTableSpecificAdditionalColumns(e, index)}
-                    >
-                      <ResizableCell width={100}>
-                        <div
-                          style={{
-                            lineHeight: "1.5",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          {header}
-                        </div>
-                      </ResizableCell>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {Object.keys(dataForTableSpecificAddTab).map(
-                  (key, rowIndex) => (
-                    <tr key={rowIndex}>
-                      {dataForTableSpecificAddTab.map((header, colIndex) => (
-                        <td
-                          style={{
-                            backgroundColor: `${
-                              dataForTableSpecificAddTab[key][colIndex]
-                                ?.confidence < 80
-                                ? "#A9A9A9"
-                                : null
-                            }`,
-                          }}
-                          data-bs-toggle="tooltip"
-                          data-bs-placement="top"
-                          title={`Confidence: ${dataForTableSpecificAddTab[key][colIndex]?.confidence}`}
-                          key={colIndex}
-                        >
-                          {dataForTableSpecificAddTab[key][colIndex]?.text}
-                          <Tooltip id={colIndex} />
-                        </td>
-                      ))}
-                    </tr>
-                  )
-                )}
-              </tbody>
-            </table>
+              <div className="mx-auto text-center">
+                Please select a table to view the additional columns
+              </div>
+            ) : additionalTableheaders.length === 0 && selectedTable ? (
+              <div className="mx-auto text-center">
+                This table doesn't contain any additional columns
+              </div>
+            ) : (
+              <table className="table table-striped table-responsive">
+                <thead>
+                  <tr>
+                    {additionalTableheaders.map((header, index) => (
+                      <th
+                        style={{
+                          backgroundColor: "#FFF2CD",
+                          textTransform: "capitalize",
+                          verticalAlign: "middle",
+                          cursor: "pointer",
+                        }}
+                        key={index}
+                        className="resizable-header"
+                        onClick={(e) => {
+                          if (selectedTableName === "table_1") {
+                            addColumnFromTableSpecificAdditionalColumns(
+                              e,
+                              index
+                            );
+                          } else if (
+                            selectedTableName !== "table_1" &&
+                            headerIndex == null
+                          ) {
+                            toast.error("Please select a target header");
+                          } else {
+                            addColumnFromTableSpecificAdditionalColumns(
+                              e,
+                              index
+                            );
+                          }
+                        }}
+                      >
+                        <ResizableCell width={100}>
+                          <div
+                            style={{
+                              lineHeight: "1.5",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {header}
+                          </div>
+                        </ResizableCell>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.keys(dataForTableSpecificAddTab).map(
+                    (key, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {dataForTableSpecificAddTab.map((header, colIndex) => (
+                          <td
+                            style={{
+                              backgroundColor: `${
+                                dataForTableSpecificAddTab[key][colIndex]
+                                  ?.confidence < 80
+                                  ? "#A9A9A9"
+                                  : null
+                              }`,
+                            }}
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title={`Confidence: ${dataForTableSpecificAddTab[key][colIndex]?.confidence}`}
+                            key={colIndex}
+                          >
+                            {dataForTableSpecificAddTab[key][colIndex]?.text}
+                            <Tooltip id={colIndex} />
+                          </td>
+                        ))}
+                      </tr>
+                    )
+                  )}
+                </tbody>
+              </table>
             )}
           </div>
+          {selectedTable && selectedTableName !== "table_1" && (
+            <>
+              <h6 className="mx-2 mb-2">Select a target header</h6>
+              <div className="container text-center">
+                {invNewTableheaders.map((header, index) => (
+                  <button
+                    key={index}
+                    className={`btn my-2 mx-2 ${
+                      index === headerIndex
+                        ? "btn-outline-warning"
+                        : "btn-warning"
+                    }`}
+                    onClick={() => {
+                      setHeaderIndex(index);
+                      toast.success(`Header ${header} selected!`);
+                    }}
+                  >
+                    {header}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={() => handleCloseTwo()}>Close</Button>
