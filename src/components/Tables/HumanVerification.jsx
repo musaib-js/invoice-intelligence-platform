@@ -96,11 +96,10 @@ export default function HumanVerification({
       setSum(updatedSum);
     };
 
-    if (discountEdit){
-      return
-    }
-    else if(
-     extraDiscountsAdded?.[0] === "NA" ||
+    if (discountEdit) {
+      return;
+    } else if (
+      extraDiscountsAdded?.[0] === "NA" ||
       extraDiscountsAdded?.length === 0 ||
       isNaN(extraDiscountsAdded?.[0])
     ) {
@@ -109,11 +108,10 @@ export default function HumanVerification({
       setDiscounts(extraDiscountsAdded);
     }
 
-    if (taxEdit){
-      return
-    }
-    else if(
-     extraChargesAdded?.[0] === "NA" ||
+    if (taxEdit) {
+      return;
+    } else if (
+      extraChargesAdded?.[0] === "NA" ||
       extraChargesAdded?.length === 0 ||
       isNaN(extraChargesAdded?.[0])
     ) {
@@ -141,7 +139,7 @@ export default function HumanVerification({
 
     setDataForEditableTable(invoiceTableData.slice(1, invoiceTableData.length));
 
-    if (!additionalCols[0] ||Object.keys(additionalCols[0]).length === 0) {
+    if (!additionalCols[0] || Object.keys(additionalCols[0]).length === 0) {
       console.log("coming here");
       setInvAdditionalTableHeaders([]);
       setDataForAdditionalTable([]);
@@ -159,7 +157,7 @@ export default function HumanVerification({
     setTableNames(Object.keys(numberOfRows));
 
     calculateSum();
-    findCalculatedSum()
+    // findCalculatedSum();
   }, [
     discounts,
     taxes,
@@ -176,7 +174,7 @@ export default function HumanVerification({
     setDiscountEdit(true);
     setDiscounts([discountValue]);
   };
-  
+
   const handleTaxChange = (e) => {
     const taxValue = parseFloat(e.target.value);
     setInvoiceTaxesSum(taxValue);
@@ -184,11 +182,18 @@ export default function HumanVerification({
     setTaxes([taxValue]);
   };
 
-  const findCalculatedSum = () =>{
-    const calcSum = (sum - extraDiscountsSum + parseFloat(invoiceTaxesSum)).toFixed(2)
-    setCalculatedSum(calcSum)
-    return calcSum
-  }
+  useEffect(() => {
+    const findCalculatedSum = () => {
+      const calcSum = (
+        sum -
+        extraDiscountsSum +
+        parseFloat(invoiceTaxesSum)
+      ).toFixed(2);
+      setCalculatedSum(calcSum);
+      return calcSum;
+    };
+    findCalculatedSum();
+  }, [discounts, taxes]);
   const setDataForTableSpecificTable = (tableName) => {
     setSelectedTable(true);
     setSelectedTableName(tableName);
@@ -677,25 +682,14 @@ export default function HumanVerification({
                   {" "}
                   <ListGroup.Item
                     className={`${
-                      sum -
-                        extraDiscountsSum +
-                        invoiceTaxesSum -
-                        invoiceTotalFromtable >
-                        0 ||
-                      sum -
-                        extraDiscountsSum +
-                        invoiceTaxesSum -
-                        invoiceTotalFromtable <
-                        -0
+                      calculatedSum - invoiceTotalFromtable > 0 ||
+                      calculatedSum - invoiceTotalFromtable < -0
                         ? "text-danger fw-bolder border-danger"
                         : "text-success fw-bolder border-success"
                     }`}
                   >
                     {" "}
-                    $
-                    {
-                     calculatedSum
-                    }
+                    ${calculatedSum}
                   </ListGroup.Item>
                 </ListGroup>
               </p>
@@ -706,12 +700,8 @@ export default function HumanVerification({
                 {" "}
                 <ListGroup.Item
                   className={
-                    invoiceTotalFromtable -
-                      (sum - extraDiscountsSum + invoiceTaxesSum) >
-                      0 ||
-                    invoiceTotalFromtable -
-                      (sum - extraDiscountsSum + invoiceTaxesSum) <
-                      -0
+                    invoiceTotalFromtable - calculatedSum > 0 ||
+                    invoiceTotalFromtable - calculatedSum < -0
                       ? "text-danger fw-bolder border-danger"
                       : "text-success fw-bolder border-success"
                   }
