@@ -82,6 +82,7 @@ export default function HumanVerification({
   const [taxEdit, setTaxEdit] = useState(false);
   const [discountEdit, setDiscountEdit] = useState(false);
   const [calculatedSum, setCalculatedSum] = useState(0);
+  const [additionIndex, setAdditionIndex] = useState(null);
   useEffect(() => {
     const calculateSum = () => {
       let updatedSum = 0;
@@ -169,12 +170,11 @@ export default function HumanVerification({
   ]);
 
   const handleDiscountChange = (e) => {
-    let discountValue
-    if(isNaN(e.target.value) || !e.target.value){
+    let discountValue;
+    if (isNaN(e.target.value) || !e.target.value) {
       discountValue = 0;
-    }
-    else{
-    discountValue = parseFloat(e.target.value);
+    } else {
+      discountValue = parseFloat(e.target.value);
     }
     setExtraDiscountsSum(discountValue);
     setDiscountEdit(true);
@@ -182,14 +182,13 @@ export default function HumanVerification({
   };
 
   const handleTaxChange = (e) => {
-    let taxValue
-    if(isNaN(e.target.value) || !e.target.value){
+    let taxValue;
+    if (isNaN(e.target.value) || !e.target.value) {
       taxValue = 0;
-    }
-    else{
+    } else {
       taxValue = parseFloat(e.target.value);
     }
-    
+
     setInvoiceTaxesSum(taxValue);
     setTaxEdit(true);
     setTaxes([taxValue]);
@@ -272,7 +271,7 @@ export default function HumanVerification({
         dataForEditabletable[rowId][invNewTableheaders.indexOf(header)]?.text
       );
     });
-    console.log("the initial data", initialRowData)
+    console.log("the initial data", initialRowData);
     setPayload({ row_id: rowId, row_data: initialRowData });
   };
 
@@ -436,9 +435,10 @@ export default function HumanVerification({
       toast.success("Column added successfully!");
       setShowTwo(false);
       setInvoiceTableData(updatedData);
-    }  else {
+    } else {
       const startingIndex = tableStartIndex[selectedTableName];
-      const nextStartingIndex = tableStartIndex[selectedTableName] + numberOfRows[selectedTableName];
+      const nextStartingIndex =
+        tableStartIndex[selectedTableName] + numberOfRows[selectedTableName];
       console.log("The starting index is", startingIndex);
       for (let i = startingIndex; i < nextStartingIndex - 1; i++) {
         const columnIndex = headerIndex;
@@ -468,6 +468,8 @@ export default function HumanVerification({
         }
       }
       toast.success("Column merged successfully!");
+      setAdditionIndex(null)
+      setHeaderIndex(null)
       setShowTwo(false);
       setInvoiceTableData(updatedData);
     }
@@ -661,8 +663,8 @@ export default function HumanVerification({
                       value={parseFloat(extraDiscountsSum)}
                       width={"100%"}
                       style={{
-                        MozAppearance: 'textfield', 
-                        appearance: 'textfield', 
+                        MozAppearance: "textfield",
+                        appearance: "textfield",
                       }}
                     />
                   ) : (
@@ -687,9 +689,9 @@ export default function HumanVerification({
                       value={parseFloat(invoiceTaxesSum)}
                       width={"100%"}
                       style={{
-                        MozAppearance: 'textfield', 
-                        appearance: 'textfield', 
-                        width: '100%',
+                        MozAppearance: "textfield",
+                        appearance: "textfield",
+                        width: "100%",
                       }}
                     />
                   ) : (
@@ -835,7 +837,7 @@ export default function HumanVerification({
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={() => handleClose()}>Close</Button>
+          <Button className="btn-danger" onClick={() => handleClose()}>Close</Button>
         </Modal.Footer>
       </Modal>
 
@@ -896,6 +898,11 @@ export default function HumanVerification({
                           textTransform: "capitalize",
                           verticalAlign: "middle",
                           cursor: "pointer",
+                          borderColor: `${
+                            additionIndex == index ? "green" : 'transparent'
+                          }`,
+                          borderWidth: `2px`,
+                          borderStyle: `solid`,
                         }}
                         key={index}
                         className="resizable-header"
@@ -905,16 +912,8 @@ export default function HumanVerification({
                               e,
                               index
                             );
-                          } else if (
-                            selectedTableName !== "table_1" &&
-                            headerIndex == null
-                          ) {
-                            toast.error("Please select a target header");
                           } else {
-                            addColumnFromTableSpecificAdditionalColumns(
-                              e,
-                              index
-                            );
+                            setAdditionIndex(index);
                           }
                         }}
                       >
@@ -946,6 +945,11 @@ export default function HumanVerification({
                                   ? "#A9A9A9"
                                   : null
                               }`,
+                              borderColor: `${
+                                additionIndex == colIndex ? "green" : 'transparent'
+                              }`,
+                              borderWidth: `2px`,
+                              borderStyle: `solid`,
                             }}
                             data-bs-toggle="tooltip"
                             data-bs-placement="top"
@@ -963,32 +967,44 @@ export default function HumanVerification({
               </table>
             )}
           </div>
-          {selectedTable && selectedTableName !== "table_1" && (
-            <>
-              <h6 className="mx-2 mb-2">Select a target header</h6>
-              <div className="container text-center">
-                {invNewTableheaders.map((header, index) => (
-                  <button
-                    key={index}
-                    className={`btn my-2 mx-2 ${
-                      index === headerIndex
-                        ? "btn-outline-warning"
-                        : "btn-warning"
-                    }`}
-                    onClick={() => {
-                      setHeaderIndex(index);
-                      toast.success(`Header ${header} selected!`);
-                    }}
-                  >
-                    {header}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
+          {selectedTable &&
+            selectedTableName !== "table_1" &&
+            additionIndex !== null && (
+              <>
+                <h6 className="mx-2 mb-2">Select a target header</h6>
+                <div className="container text-center">
+                  {invNewTableheaders.map((header, index) => (
+                    <button
+                      key={index}
+                      className={`btn my-2 mx-2 ${
+                        index === headerIndex
+                          ? "btn-outline-warning"
+                          : "btn-warning"
+                      }`}
+                      onClick={(e) => {
+                        setHeaderIndex(index);
+                        toast.success(`Header ${header} selected!`);
+                      }}
+                    >
+                      {header}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+            {additionIndex !== null && headerIndex !== null && (
+            <div className="text-muted text-sm text-center"><em>The selected column would be merged with {invNewTableheaders[headerIndex]}</em></div>
+            )}
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={() => handleCloseTwo()}>Close</Button>
+          <Button
+          className="btn-warning"
+            onClick={(e) =>
+              addColumnFromTableSpecificAdditionalColumns(e, additionIndex)
+            }
+          >
+            Save
+          </Button>
         </Modal.Footer>
       </Modal>
     </>
