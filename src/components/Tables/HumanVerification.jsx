@@ -80,9 +80,6 @@ export default function HumanVerification({
   const handleCloseThree = () => setShowThree(false);
   const handleShowThree = () => setShowThree(true);
 
-  console.log("The additional cols are", additionalCols);
-  console.log("check", Object.keys(additionalCols[0]));
-
   useEffect(() => {}, [extraDiscountsSum, invoiceTaxesSum]);
   useEffect(() => {
     const calculateSum = () => {
@@ -137,7 +134,7 @@ export default function HumanVerification({
 
     setDataForEditableTable(invoiceTableData.slice(1, invoiceTableData.length));
 
-    if (Object.keys(additionalCols[0]).length === 0) {
+    if (!additionalCols[0] ||Object.keys(additionalCols[0]).length === 0) {
       console.log("coming here");
       setInvAdditionalTableHeaders([]);
       setDataForAdditionalTable([]);
