@@ -160,7 +160,7 @@ export default function HumanVerification({
     setTableNames(Object.keys(numberOfRows));
 
     calculateSum();
-    // findCalculatedSum();
+    findCalculatedSum();
   }, [
     discounts,
     taxes,
@@ -196,16 +196,17 @@ export default function HumanVerification({
     setTaxes([taxValue]);
   };
 
+  const findCalculatedSum = () => {
+    const calcSum = (
+      sum -
+      extraDiscountsSum +
+      parseFloat(invoiceTaxesSum)
+    ).toFixed(2);
+    setCalculatedSum(calcSum);
+    return calcSum;
+  };
+
   useEffect(() => {
-    const findCalculatedSum = () => {
-      const calcSum = (
-        sum -
-        extraDiscountsSum +
-        parseFloat(invoiceTaxesSum)
-      ).toFixed(2);
-      setCalculatedSum(calcSum);
-      return calcSum;
-    };
     findCalculatedSum();
   }, [discounts, taxes]);
 
@@ -493,8 +494,8 @@ export default function HumanVerification({
         style={{
           width: width || "100%",
           height: "471px",
-          overflowX: "scroll",
-          overflowY: "scroll",
+          overflowX: "auto",
+          overflowY: "auto",
         }}
       >
         <table className="table table-striped table-responsive table-bordered">
@@ -652,10 +653,9 @@ export default function HumanVerification({
             onClick={() => {
               addEmptyRow();
             }}
-            className="mx-auto fs-32"
+            className="mx-auto fs-32 text-warning"
             style={{
               fontSize: "2rem",
-              color: "yellow",
               cursor: "pointer",
             }}
           ></PlusCircleFill>
@@ -667,10 +667,9 @@ export default function HumanVerification({
             onClick={() => {
               handleShow();
             }}
-            className="mx-auto fs-32"
+            className="mx-auto fs-32 text-warning"
             style={{
               fontSize: "2rem",
-              color: "yellow",
               cursor: "pointer",
             }}
             title="Click to view the processed columns"
@@ -682,10 +681,9 @@ export default function HumanVerification({
             onClick={() => {
               handleShowTwo();
             }}
-            className="mx-auto fs-32"
+            className="mx-auto fs-32 text-warning"
             style={{
               fontSize: "2rem",
-              color: "yellow",
               cursor: "pointer",
             }}
             title="Click to view the unrecognized columns that were not compatible for combining with the processed columns"

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Row, Col } from "react-bootstrap";
 import TableComponent from "./TableComponent";
 import { pdfjs } from "react-pdf";
+import {  Pagination  } from 'antd'
 import {
   ArrowRightCircleFill,
   ArrowLeftCircleFill,
@@ -66,6 +67,7 @@ const PDFTableComponent = () => {
   const [numberOfRows, setNumberOfRows] = useState({});
   const [additionalColsTables, setAdditionalColsTables] = useState([]);
   const [saved, setSaved] = useState(false);
+
   useEffect(() => {
     if (pageNumber === 0) {
       return;
@@ -470,6 +472,9 @@ const PDFTableComponent = () => {
                       size={40}
                     />
                   </span>
+                </div>
+                <div>
+                {/* <Pagination simple defaultCurrent={2} total={50} /> */}
                 </div>
               </Col>
               <Col md={6}>
