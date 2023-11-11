@@ -156,7 +156,7 @@ const PDFTableComponent = () => {
         setPdfUrl(response.data.response.pdf_link);
         setInvoiceNum(response.data.response.invoice_metadata.invoice_number);
         setInvoiceDate(response.data.response.invoice_metadata.invoice_date);
-        setvendorName(response.data.response.invoice_metadata.vendor_names);
+        setvendorName(response.data.response.invoice_metadata.vendor_name);
         setTotalInvoices(response.data.response.total_invoices);
         setdueDate(response.data.response.invoice_metadata.invoice_due_date);
         setInvoiceBalance(
@@ -195,7 +195,7 @@ const PDFTableComponent = () => {
             .total_pages_in_invoice_from_global
         );
         setvendorNamesSource(
-          response.data.response.invoice_metadata.vendor_names_source
+          response.data.response.invoice_metadata.vendor_name_source
         );
         setTotalPagesProcessed(
           response.data.response.invoice_metadata
