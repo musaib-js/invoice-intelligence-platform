@@ -39,6 +39,9 @@ export default function HumanVerification({
   numberOfRows,
   additionalColsTables,
   extraChargesAdded,
+  setPageNumber,
+  pageNumber,
+  setSaved,
 }) {
   const [extraDiscountsSum, setExtraDiscountsSum] = useState(0);
   const [invoiceTaxesSum, setInvoiceTaxesSum] = useState(0);
@@ -71,18 +74,17 @@ export default function HumanVerification({
   const [selectedTableName, setSelectedTableName] = useState("");
   const [addTabData, setAddTabData] = useState([]);
   const [headerIndex, setHeaderIndex] = useState(null);
+  const [taxEdit, setTaxEdit] = useState(false);
+  const [discountEdit, setDiscountEdit] = useState(false);
+  const [calculatedSum, setCalculatedSum] = useState(0);
+  const [additionIndex, setAdditionIndex] = useState(null);
+
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   const handleCloseTwo = () => setShowTwo(false);
   const handleShowTwo = () => setShowTwo(true);
 
-  const handleCloseThree = () => setShowThree(false);
-  const handleShowThree = () => setShowThree(true);
-  const [taxEdit, setTaxEdit] = useState(false);
-  const [discountEdit, setDiscountEdit] = useState(false);
-  const [calculatedSum, setCalculatedSum] = useState(0);
-  const [additionIndex, setAdditionIndex] = useState(null);
   useEffect(() => {
     const calculateSum = () => {
       let updatedSum = 0;
@@ -262,6 +264,13 @@ export default function HumanVerification({
     setInvoiceTableData((prevData) => [...prevData, generateEmptyRow()]);
   };
 
+  const deleteRow = (deleteRowId) => {
+    const updatedData = [...invoiceTableData];
+    updatedData.splice(deleteRowId+1, 1);
+    setInvoiceTableData(updatedData);
+    toast.success(`Row  ${deleteRowId} deleted successfully!,`);
+  }
+
   // Function to handle the edit click
   const handleEditIconClick = (rowId) => {
     setEditableRow(rowId);
@@ -350,12 +359,15 @@ export default function HumanVerification({
         }
       }
       payload["invoice_1"] = reversedData;
-      console.log("Updated payload:", payload);
+      payload["invoice_metadata"]["extra_discounts_added"] = discounts
+      payload["invoice_metadata"]["extra_charges_added"] = taxes
+      console.log("Updated payload:", payload["invoice_metadata"]);
       await axios
         .post(`${process.env.REACT_APP_BACKEND_URL}/save_invoice`, payload)
         .then((res) => {
           console.log("Response from backend:", res);
           toast.success("Invoice saved successfully!");
+          setSaved(true);
         })
         .catch((err) => {
           console.log("Error in saving invoice:", err);
@@ -468,8 +480,8 @@ export default function HumanVerification({
         }
       }
       toast.success("Column merged successfully!");
-      setAdditionIndex(null)
-      setHeaderIndex(null)
+      setAdditionIndex(null);
+      setHeaderIndex(null);
       setShowTwo(false);
       setInvoiceTableData(updatedData);
     }
@@ -525,6 +537,15 @@ export default function HumanVerification({
                   </ResizableCell>
                 </th>
               ))}
+              <th
+                style={{
+                  backgroundColor: "#FFF2CD",
+                  textTransform: "capitalize",
+                  verticalAlign: "middle",
+                }}
+              >
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -585,6 +606,41 @@ export default function HumanVerification({
                     )}
                   </td>
                 ))}
+                <td
+              >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    x="0px"
+                    y="0px"
+                    width="25"
+                    height="25"
+                    viewBox="0,0,256,256"
+                    style={{fill: "#000000", cursor: "pointer"}}
+                    onClick={() => {deleteRow(rowIndex)}}
+                  >
+                    <g
+                      fill-opacity="0.74902"
+                      fill="#f60000"
+                      fill-rule="nonzero"
+                      stroke="none"
+                      stroke-width="1"
+                      stroke-linecap="butt"
+                      stroke-linejoin="miter"
+                      stroke-miterlimit="10"
+                      stroke-dasharray=""
+                      stroke-dashoffset="0"
+                      font-family="none"
+                      font-weight="none"
+                      font-size="none"
+                      text-anchor="none"
+                      style={{mixBlendMode: "normal"}}
+                    >
+                      <g transform="scale(8.53333,8.53333)">
+                        <path d="M14.98438,2.48633c-0.55152,0.00862 -0.99193,0.46214 -0.98437,1.01367v0.5h-5.5c-0.26757,-0.00363 -0.52543,0.10012 -0.71593,0.28805c-0.1905,0.18793 -0.29774,0.44436 -0.29774,0.71195h-1.48633c-0.36064,-0.0051 -0.69608,0.18438 -0.87789,0.49587c-0.18181,0.3115 -0.18181,0.69676 0,1.00825c0.18181,0.3115 0.51725,0.50097 0.87789,0.49587h18c0.36064,0.0051 0.69608,-0.18438 0.87789,-0.49587c0.18181,-0.3115 0.18181,-0.69676 0,-1.00825c-0.18181,-0.3115 -0.51725,-0.50097 -0.87789,-0.49587h-1.48633c0,-0.26759 -0.10724,-0.52403 -0.29774,-0.71195c-0.1905,-0.18793 -0.44836,-0.29168 -0.71593,-0.28805h-5.5v-0.5c0.0037,-0.2703 -0.10218,-0.53059 -0.29351,-0.72155c-0.19133,-0.19097 -0.45182,-0.29634 -0.72212,-0.29212zM6,9l1.79297,15.23438c0.118,1.007 0.97037,1.76563 1.98438,1.76563h10.44531c1.014,0 1.86538,-0.75862 1.98438,-1.76562l1.79297,-15.23437z"></path>
+                      </g>
+                    </g>
+                  </svg>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -837,7 +893,9 @@ export default function HumanVerification({
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button className="btn-danger" onClick={() => handleClose()}>Close</Button>
+          <Button className="btn-danger" onClick={() => handleClose()}>
+            Close
+          </Button>
         </Modal.Footer>
       </Modal>
 
@@ -899,7 +957,7 @@ export default function HumanVerification({
                           verticalAlign: "middle",
                           cursor: "pointer",
                           borderColor: `${
-                            additionIndex == index ? "green" : 'transparent'
+                            additionIndex == index ? "green" : "transparent"
                           }`,
                           borderWidth: `2px`,
                           borderStyle: `solid`,
@@ -946,7 +1004,9 @@ export default function HumanVerification({
                                   : null
                               }`,
                               borderColor: `${
-                                additionIndex == colIndex ? "green" : 'transparent'
+                                additionIndex == colIndex
+                                  ? "green"
+                                  : "transparent"
                               }`,
                               borderWidth: `2px`,
                               borderStyle: `solid`,
@@ -992,13 +1052,18 @@ export default function HumanVerification({
                 </div>
               </>
             )}
-            {additionIndex !== null && headerIndex !== null && (
-            <div className="text-muted text-sm text-center"><em>The selected column would be merged with {invNewTableheaders[headerIndex]}</em></div>
-            )}
+          {additionIndex !== null && headerIndex !== null && (
+            <div className="text-muted text-sm text-center">
+              <em>
+                The selected column would be merged with{" "}
+                {invNewTableheaders[headerIndex]}
+              </em>
+            </div>
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button
-          className="btn-warning"
+            className="btn-warning"
             onClick={(e) =>
               addColumnFromTableSpecificAdditionalColumns(e, additionIndex)
             }

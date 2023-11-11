@@ -65,6 +65,7 @@ const PDFTableComponent = () => {
   const [additionalHeaders, setAdditionalHeaders] = useState([]);
   const [numberOfRows, setNumberOfRows] = useState({});
   const [additionalColsTables, setAdditionalColsTables] = useState([]);
+  const [saved, setSaved] = useState(false);
   useEffect(() => {
     if (pageNumber === 0) {
       return;
@@ -230,11 +231,12 @@ const PDFTableComponent = () => {
           response.data.response.invoice_metadata.number_of_rows_in_tables
         );
         setLoading(false);
+        setSaved(false)
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, [pageNumber]);
+  }, [pageNumber, saved]);
 
   const handleInputChange = (e) => {
     const newValue = e.target.value === "" ? 0 : parseInt(e.target.value, 10);
@@ -512,7 +514,10 @@ const PDFTableComponent = () => {
                     tableSpecificAddCols={tableSpecificAddCols}
                     numberOfRows={numberOfRows}
                     additionalColsTables={additionalColsTables}
-                  />
+                    setPageNumber = {setPageNumber}
+                    pageNumber = {pageNumber}
+                    setSaved = {setSaved}
+                    />
                 </div>
               </Col>
             </Row>

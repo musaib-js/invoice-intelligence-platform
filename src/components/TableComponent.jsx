@@ -43,7 +43,10 @@ const Table = ({
   tableSpecificAddCols,
   numberOfRows,
   additionalColsTables,
-  setAdditionalCols
+  setAdditionalCols,
+  pageNumber,
+  setPageNumber,
+  setSaved
 }) => {
   const [showTable, setShowTable] = useState(false);
   const [showInvoiceTable, setShowInvoiceTable] = useState(false);
@@ -189,6 +192,9 @@ const Table = ({
         additionalColsTables = {additionalColsTables}
         extraChargesAdded = {extraChargesAdded}
         setAdditionalCols={setAdditionalCols}
+        setPageNumber = {setPageNumber}
+        pageNumber = {pageNumber}
+        setSaved = {setSaved}
         />
       ) : null}
 
