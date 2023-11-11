@@ -15,7 +15,7 @@ Follow the steps given below
 <li>Once done, push the code to the new remote branch</li>
 <li>Create a PR from that new branch to <strong>add-confidence-score</strong></li>
 <li>Wait till the PR gets merged and tested</li>
-<li>If all the tests are passed in the dev server, your code will be merged to the <strong> master </strong> branch and deployed to production</li>
+<li>If all the tests pass in the dev server, your code will be merged to the <strong> master </strong> branch and deployed to production</li>
 </ol>
 
 ## Available Scripts
