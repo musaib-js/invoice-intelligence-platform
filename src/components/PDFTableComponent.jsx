@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Row, Col } from "react-bootstrap";
 import TableComponent from "./TableComponent";
 import { pdfjs } from "react-pdf";
+import {  Pagination  } from 'antd'
 import {
   ArrowRightCircleFill,
   ArrowLeftCircleFill,
@@ -65,6 +66,8 @@ const PDFTableComponent = () => {
   const [additionalHeaders, setAdditionalHeaders] = useState([]);
   const [numberOfRows, setNumberOfRows] = useState({});
   const [additionalColsTables, setAdditionalColsTables] = useState([]);
+  const [saved, setSaved] = useState(false);
+
   useEffect(() => {
     if (pageNumber === 0) {
       return;
@@ -155,7 +158,7 @@ const PDFTableComponent = () => {
         setPdfUrl(response.data.response.pdf_link);
         setInvoiceNum(response.data.response.invoice_metadata.invoice_number);
         setInvoiceDate(response.data.response.invoice_metadata.invoice_date);
-        setvendorName(response.data.response.invoice_metadata.vendor_names);
+        setvendorName(response.data.response.invoice_metadata.vendor_name);
         setTotalInvoices(response.data.response.total_invoices);
         setdueDate(response.data.response.invoice_metadata.invoice_due_date);
         setInvoiceBalance(
@@ -194,7 +197,7 @@ const PDFTableComponent = () => {
             .total_pages_in_invoice_from_global
         );
         setvendorNamesSource(
-          response.data.response.invoice_metadata.vendor_names_source
+          response.data.response.invoice_metadata.vendor_name_source
         );
         setTotalPagesProcessed(
           response.data.response.invoice_metadata
@@ -230,11 +233,12 @@ const PDFTableComponent = () => {
           response.data.response.invoice_metadata.number_of_rows_in_tables
         );
         setLoading(false);
+        setSaved(false)
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, [pageNumber]);
+  }, [pageNumber, saved]);
 
   const handleInputChange = (e) => {
     const newValue = e.target.value === "" ? 0 : parseInt(e.target.value, 10);
@@ -469,6 +473,9 @@ const PDFTableComponent = () => {
                     />
                   </span>
                 </div>
+                <div>
+                {/* <Pagination simple defaultCurrent={2} total={50} /> */}
+                </div>
               </Col>
               <Col md={6}>
                 <div className="mb-4" style={{ height: "530px" }}>
@@ -512,7 +519,10 @@ const PDFTableComponent = () => {
                     tableSpecificAddCols={tableSpecificAddCols}
                     numberOfRows={numberOfRows}
                     additionalColsTables={additionalColsTables}
-                  />
+                    setPageNumber = {setPageNumber}
+                    pageNumber = {pageNumber}
+                    setSaved = {setSaved}
+                    />
                 </div>
               </Col>
             </Row>

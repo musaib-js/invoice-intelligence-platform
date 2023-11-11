@@ -30,8 +30,8 @@ export default function ProcessedTable({ invoiceTableData }) {
       style={{
         width: width || "100%",
         height: "471px",
-        overflowX: "scroll",
-        overflowY: "scroll",
+        overflowX: "auto",
+        overflowY: "auto",
       }}
     >
       <table className="table table-striped table-responsive">
