@@ -46,7 +46,10 @@ const Table = ({
   setAdditionalCols,
   pageNumber,
   setPageNumber,
-  setSaved
+  setSaved,
+  setExtraChargesAdded,
+  setExtraDiscountsAdded,
+  setInvoiceTotal
 }) => {
   const [showTable, setShowTable] = useState(false);
   const [showInvoiceTable, setShowInvoiceTable] = useState(false);
@@ -195,10 +198,13 @@ const Table = ({
         setPageNumber = {setPageNumber}
         pageNumber = {pageNumber}
         setSaved = {setSaved}
+        setExtraChargesAdded = {setExtraChargesAdded}
+        setExtraDiscountsAdded = {setExtraDiscountsAdded}
+        invoiceTotal = {invoiceTotal}
+        setInvoiceTotal = {setInvoiceTotal}
         />
       ) : null}
 
-    <hr className="featurette-divider"/>
     </>
   );
 };

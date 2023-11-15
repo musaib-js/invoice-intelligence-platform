@@ -29,12 +29,11 @@ export default function MetaDataTable({
 }) {
   return (
     <div
-    className="container"
     style={{
       width: "100%",
       height: "471px",
-      overflowX: "scroll",
-      overflowY: "scroll",
+      overflowX: "auto",
+      overflowY: "auto",
     }}
   >
     <table className="table table-bordered">
