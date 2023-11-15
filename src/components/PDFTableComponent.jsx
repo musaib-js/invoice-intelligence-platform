@@ -481,16 +481,16 @@ const PDFTableComponent = () => {
                     height: "580px",
                   }}
                 >
-                  {/* <iframe
+                  <iframe
                     title="pdf"
                     src={pdfUrl}
                     width="100%"
                     height="570"
                     allow="autoplay"
-                  ></iframe> */}
-                  <Document file={"https://polynomialservices.blob.core.windows.net/invoice-intelligence-test/rest_1337/invoice_3/invoice.pdf"} onLoadSuccess={onDocumentLoadSuccess}>
+                  ></iframe>
+                  {/* <Document file={"https://polynomialservices.blob.core.windows.net/invoice-intelligence-test/rest_1337/invoice_3/invoice.pdf"} onLoadSuccess={onDocumentLoadSuccess}>
                     <Page pageNumber={pageNumber} />
-                  </Document>
+                  </Document> */}
                 </div>
                 <div className="my-4">
                   <span className="my-4 mx-2">
