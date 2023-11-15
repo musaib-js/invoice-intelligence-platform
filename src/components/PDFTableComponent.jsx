@@ -89,13 +89,15 @@ const PDFTableComponent = () => {
       .then((response) => {
         // Get data for table
         const data = response.data.response.invoice;
+        setPdfUrl(response.data?.response?.pdf_link);
+        console.log("The new pdf url is", pdfUrl)
         if (Object.keys(data).length === 0) {
           toast.error("No data found for this invoice");
           setStatus(false);
           setTableData([]);
           setLoading(false);
           setTotalInvoices(response.data.response.total_invoices);
-          setPdfUrl(response.data.response.pdf_link);
+          // setPdfUrl(response.data.response.pdf_link);
           setInvoiceNum(response.data.response.invoice_number);
           return;
         }
@@ -119,7 +121,7 @@ const PDFTableComponent = () => {
           setInvoiceTableData([]);
           setLoading(false);
           setTotalInvoices(response.data.response.total_invoices);
-          setPdfUrl(response.data.response.pdf_link);
+          // setPdfUrl(response.data.response.pdf_link);
           setInvoiceNum(response.data.response.invoice_number);
           return;
         }
@@ -167,7 +169,7 @@ const PDFTableComponent = () => {
             "table_specific_additional_columns"
           ]
         );
-        setPdfUrl(response.data.response.pdf_link);
+        // setPdfUrl(response.data.response.pdf_link);
         setInvoiceNum(response.data.response.invoice_metadata.invoice_number);
         setInvoiceDate(response.data.response.invoice_metadata.invoice_date);
         setvendorName(response.data.response.invoice_metadata.vendor_name);
