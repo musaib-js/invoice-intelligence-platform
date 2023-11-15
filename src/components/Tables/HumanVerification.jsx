@@ -71,7 +71,8 @@ export default function HumanVerification({
   const [addDiscount, setAddDiscount] = useState(false);
   const [newTax, setNewTax] = useState("");
   const [newDiscount, setNewDiscount] = useState("");
-
+  const [tempTotal, setTempTotal] = useState(0);
+  const [editTotal, setEditTotal] = useState(false);
   const tableRef = useRef(null);
   const containerRef = useRef(null);
   const handleClose = () => setShow(false);
@@ -890,7 +891,31 @@ export default function HumanVerification({
                     }`}
                   >
                     {" "}
-                    ${invoiceTotal}
+                    {editTotal ? (
+                      <>
+                        <input
+                          type="number"
+                          onChange={(e) => {
+                            setInvoiceTotal(e.target.value);
+                          }}
+                          className="form-control"
+                          value={invoiceTotal}
+                          width={"100%"}
+                          style={{
+                            MozAppearance: "textfield",
+                            appearance: "textfield",
+                          }}
+                          onBlur={() => {
+                            setEditTotal(false);
+                          }}
+                        />
+                      </>
+                    ) : (
+                      <>
+                      <span onClick={()=>{setEditTotal(true)}}>${invoiceTotal}</span>
+                      </>
+                    )
+                    } 
                   </ListGroup.Item>
                 </ListGroup>
               </p>
@@ -901,15 +926,15 @@ export default function HumanVerification({
                 {" "}
                 <ListGroup.Item
                   className={
-                    invoiceTotalFromtable - calculatedSum > 0 ||
-                    invoiceTotalFromtable - calculatedSum < -0
+                    invoiceTotalFromtable - invoiceTotal > 0 ||
+                    invoiceTotalFromtable - invoiceTotal < -0
                       ? "text-danger fw-bolder border-danger"
                       : "text-success fw-bolder border-success"
                   }
                 >
                   $
                   {(
-                    invoiceTotalFromtable -
+                    invoiceTotal -
                     (sum - extraDiscountsSum + invoiceTaxesSum)
                   ).toFixed(2)}
                 </ListGroup.Item>

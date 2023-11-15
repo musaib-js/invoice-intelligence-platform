@@ -68,7 +68,7 @@ const PDFTableComponent = () => {
   const [numberOfRows, setNumberOfRows] = useState({});
   const [additionalColsTables, setAdditionalColsTables] = useState([]);
   const [saved, setSaved] = useState(false);
-  const [getVerified, setGetVerified] = useState(false);
+  const [getVerified, setGetVerified] = useState("both");
   const [status, setStatus] = useState(true);
   const [showVertical, setShowVertical] = useState(false);
   useEffect(() => {
@@ -80,7 +80,7 @@ const PDFTableComponent = () => {
       pdf_index: pageNumber,
       filters: {
         human_verification: "both",
-        human_verified: `${getVerified}`,
+        human_verified: getVerified,
       },
     };
     const apiUrl = `${process.env.REACT_APP_INVOICE_URL}`;
@@ -481,16 +481,16 @@ const PDFTableComponent = () => {
                     height: "580px",
                   }}
                 >
-                  {/* <iframe
+                  <iframe
                     title="pdf"
                     src={pdfUrl}
                     width="100%"
                     height="570"
                     allow="autoplay"
-                  ></iframe> */}
-                  <Document file={"https://polynomialservices.blob.core.windows.net/invoice-intelligence-test/rest_1337/invoice_3/invoice.pdf"} onLoadSuccess={onDocumentLoadSuccess}>
+                  ></iframe>
+                  {/* <Document file={"https://polynomialservices.blob.core.windows.net/invoice-intelligence-test/rest_1337/invoice_3/invoice.pdf"} onLoadSuccess={onDocumentLoadSuccess}>
                     <Page pageNumber={pageNumber} />
-                  </Document>
+                  </Document> */}
                 </div>
                 <div className="my-4">
                   <span className="my-4 mx-2">
