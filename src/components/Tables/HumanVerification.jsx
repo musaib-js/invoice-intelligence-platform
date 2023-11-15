@@ -1,26 +1,12 @@
-import React from "react";
-import { useState, useEffect } from "react";
-import { Resizable } from "react-resizable";
+import React, { useState, useEffect, useRef } from "react";
 import { Tooltip } from "react-tooltip";
 import { Card, Col, ListGroup, Row } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { PlusCircleFill } from "react-bootstrap-icons";
-import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
-
-const ResizableCell = ({ children, width, ...rest }) => {
-  return (
-    <Resizable
-      width={width}
-      height={0}
-      handle={<div className="react-resizable-handle" />}
-      {...rest}
-    >
-      <div>{children}</div>
-    </Resizable>
-  );
-};
+import CombinedCols from "../Modals/CombinedCols";
+import UnrecognizedCols from "../Modals/UnrecognizedCols";
+import ResizableCell from "../Utility/ResizableCell";
 
 export default function HumanVerification({
   invoiceTableData,
@@ -39,9 +25,13 @@ export default function HumanVerification({
   numberOfRows,
   additionalColsTables,
   extraChargesAdded,
+  setExtraChargesAdded,
   setPageNumber,
   pageNumber,
   setSaved,
+  setExtraDiscountsAdded,
+  setInvoiceTotal,
+  invoiceTotal
 }) {
   const [extraDiscountsSum, setExtraDiscountsSum] = useState(0);
   const [invoiceTaxesSum, setInvoiceTaxesSum] = useState(0);
@@ -68,7 +58,6 @@ export default function HumanVerification({
   const [additionalTableheaders, setAdditionalTableHeaders] = useState([]);
   const [show, setShow] = useState(false);
   const [showTwo, setShowTwo] = useState(false);
-  const [showThree, setShowThree] = useState(false);
   const [tableNames, setTableNames] = useState([]);
   const [selectedTable, setSelectedTable] = useState(false);
   const [selectedTableName, setSelectedTableName] = useState("");
@@ -78,7 +67,13 @@ export default function HumanVerification({
   const [discountEdit, setDiscountEdit] = useState(false);
   const [calculatedSum, setCalculatedSum] = useState(0);
   const [additionIndex, setAdditionIndex] = useState(null);
+  const [addTax, setAddTax] = useState(false);
+  const [addDiscount, setAddDiscount] = useState(false);
+  const [newTax, setNewTax] = useState("");
+  const [newDiscount, setNewDiscount] = useState("");
 
+  const tableRef = useRef(null);
+  const containerRef = useRef(null);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
@@ -169,6 +164,7 @@ export default function HumanVerification({
     invoiceTableData,
     invNewTableheaders,
     editableRow,
+    extraChargesAdded
   ]);
 
   const handleDiscountChange = (e) => {
@@ -181,6 +177,46 @@ export default function HumanVerification({
     setExtraDiscountsSum(discountValue);
     setDiscountEdit(true);
     setDiscounts([discountValue]);
+  };
+
+  const handleInputChangeTaxAddition = (event) => {
+    setNewTax(event.target.value);
+  };
+
+  const addNewTax = () => {
+    setTaxEdit(false)
+    console.log("adding a new tax")
+    if (newTax.trim() !== "") {
+      const taxArray = [...extraChargesAdded];
+      if(taxArray[0] === "NA") {
+        taxArray.shift();
+      }
+      taxArray.push(parseFloat(newTax));
+      setExtraChargesAdded(taxArray);
+      setAddTax(false)
+      setEditTax(false)
+      setNewTax("");
+    }
+  };
+
+  const handleInputChangeDiscountAddition = (event) => {
+    setNewDiscount(event.target.value);
+  };
+
+  const addNewDiscount = () => {
+    setDiscountEdit(false)
+    console.log("adding a new tax")
+    if (newDiscount.trim() !== "") {
+      const discountArray = [...extraDiscountsAdded];
+      if(discountArray[0] === "NA") {
+        discountArray.shift();
+      }
+      discountArray.push(parseFloat(newDiscount));
+      setExtraDiscountsAdded(discountArray)
+      setAddDiscount(false)
+      setEditDiscount(false)
+      setNewDiscount("");
+    }
   };
 
   const handleTaxChange = (e) => {
@@ -263,14 +299,17 @@ export default function HumanVerification({
   const addEmptyRow = () => {
     console.log("who called me to add an empty row");
     setInvoiceTableData((prevData) => [...prevData, generateEmptyRow()]);
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
   };
 
   const deleteRow = (deleteRowId) => {
     const updatedData = [...invoiceTableData];
-    updatedData.splice(deleteRowId+1, 1);
+    updatedData.splice(deleteRowId + 1, 1);
     setInvoiceTableData(updatedData);
     toast.success(`Row  ${deleteRowId} deleted successfully!,`);
-  }
+  };
 
   // Function to handle the edit click
   const handleEditIconClick = (rowId) => {
@@ -360,8 +399,8 @@ export default function HumanVerification({
         }
       }
       payload["invoice_1"] = reversedData;
-      payload["invoice_metadata"]["extra_discounts_added"] = discounts
-      payload["invoice_metadata"]["extra_charges_added"] = taxes
+      payload["invoice_metadata"]["extra_discounts_added"] = extraDiscountsAdded;
+      payload["invoice_metadata"]["extra_charges_added"] = extraChargesAdded;
       console.log("Updated payload:", payload["invoice_metadata"]);
       await axios
         .post(`${process.env.REACT_APP_BACKEND_URL}/save_invoice`, payload)
@@ -491,6 +530,7 @@ export default function HumanVerification({
   return (
     <>
       <div
+      ref={containerRef}
         style={{
           width: width || "100%",
           height: "471px",
@@ -498,7 +538,7 @@ export default function HumanVerification({
           overflowY: "auto",
         }}
       >
-        <table className="table table-striped table-responsive table-bordered">
+        <table ref={tableRef} className="table table-striped table-responsive table-bordered">
           <thead>
             <tr>
               {invNewTableheaders.map((header, index) => (
@@ -580,6 +620,7 @@ export default function HumanVerification({
                     {editableRow === key ? (
                       <input
                         className="form-control"
+                        width={"100%"}
                         value={
                           changed
                             ? rowDataForExtendedPrice.header
@@ -607,8 +648,7 @@ export default function HumanVerification({
                     )}
                   </td>
                 ))}
-                <td
-              >
+                <td>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     x="0px"
@@ -616,8 +656,10 @@ export default function HumanVerification({
                     width="25"
                     height="25"
                     viewBox="0,0,256,256"
-                    style={{fill: "#000000", cursor: "pointer"}}
-                    onClick={() => {deleteRow(rowIndex)}}
+                    style={{ fill: "#000000", cursor: "pointer" }}
+                    onClick={() => {
+                      deleteRow(rowIndex);
+                    }}
                   >
                     <g
                       fill-opacity="0.74902"
@@ -634,7 +676,7 @@ export default function HumanVerification({
                       font-weight="none"
                       font-size="none"
                       text-anchor="none"
-                      style={{mixBlendMode: "normal"}}
+                      style={{ mixBlendMode: "normal" }}
                     >
                       <g transform="scale(8.53333,8.53333)">
                         <path d="M14.98438,2.48633c-0.55152,0.00862 -0.99193,0.46214 -0.98437,1.01367v0.5h-5.5c-0.26757,-0.00363 -0.52543,0.10012 -0.71593,0.28805c-0.1905,0.18793 -0.29774,0.44436 -0.29774,0.71195h-1.48633c-0.36064,-0.0051 -0.69608,0.18438 -0.87789,0.49587c-0.18181,0.3115 -0.18181,0.69676 0,1.00825c0.18181,0.3115 0.51725,0.50097 0.87789,0.49587h18c0.36064,0.0051 0.69608,-0.18438 0.87789,-0.49587c0.18181,-0.3115 0.18181,-0.69676 0,-1.00825c-0.18181,-0.3115 -0.51725,-0.50097 -0.87789,-0.49587h-1.48633c0,-0.26759 -0.10724,-0.52403 -0.29774,-0.71195c-0.1905,-0.18793 -0.44836,-0.29168 -0.71593,-0.28805h-5.5v-0.5c0.0037,-0.2703 -0.10218,-0.53059 -0.29351,-0.72155c-0.19133,-0.19097 -0.45182,-0.29634 -0.72212,-0.29212zM6,9l1.79297,15.23438c0.118,1.007 0.97037,1.76563 1.98438,1.76563h10.44531c1.014,0 1.86538,-0.75862 1.98438,-1.76562l1.79297,-15.23437z"></path>
@@ -695,10 +737,10 @@ export default function HumanVerification({
         <Card.Body>
           <Row className="justify-content-center">
             <Col xs={12} sm={6} md={4} lg={2}>
-              <p>Invoice Total </p>
+              <p>Calculated Invoice Total </p>
               <ListGroup>
                 {" "}
-                <ListGroup.Item>${invoiceTotalFromtable}</ListGroup.Item>
+                <ListGroup.Item>${sum}</ListGroup.Item>
               </ListGroup>
             </Col>
             <Col xs={12} sm={6} md={4} lg={2}>
@@ -709,19 +751,50 @@ export default function HumanVerification({
                     setEditDiscount(true);
                   }}
                 >
-                  {editDiscount ? (
-                    <input
-                      type="number"
-                      onChange={(e) => handleDiscountChange(e)}
-                      className="form-control"
-                      value={parseFloat(extraDiscountsSum)}
-                      width={"100%"}
-                      style={{
-                        MozAppearance: "textfield",
-                        appearance: "textfield",
-                      }}
-                    />
-                  ) : (
+                  {editDiscount && !addDiscount ? (
+                    <>
+                      <input
+                        type="number"
+                        onChange={(e) => handleDiscountChange(e)}
+                        className="form-control"
+                        value={parseFloat(extraDiscountsSum)}
+                        width={"100%"}
+                        style={{
+                          MozAppearance: "textfield",
+                          appearance: "textfield",
+                        }}
+                      />
+                      <PlusCircleFill
+                        style={{
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {setAddDiscount(true)}}
+                      />
+                    </>
+                  ) : 
+                  editDiscount && addDiscount ? (
+                    <>
+                      <select className="form-select mb-3">
+                        {discounts.map((discount, index) => (
+                          <option key={index} value={discount}>
+                            {/* <input type="text" placeholder = {discount} value={discount}/> */}
+                            {discount}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="input-group mb-3">
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Add"
+                          value={newDiscount}
+                          onChange={handleInputChangeDiscountAddition}
+                        />
+                        <PlusCircleFill style={{cursor: "pointer"}} className=" mx-4 fs-16" onClick={addNewDiscount}/>
+                      </div>
+                    </>
+                  ) :
+                  (
                     extraDiscountsSum.toFixed(2)
                   )}
                 </ListGroup.Item>
@@ -735,19 +808,49 @@ export default function HumanVerification({
                     setEditTax(true);
                   }}
                 >
-                  {editTax ? (
-                    <input
-                      type="number"
-                      onChange={(e) => handleTaxChange(e)}
-                      className="form-control"
-                      value={parseFloat(invoiceTaxesSum)}
-                      width={"100%"}
-                      style={{
-                        MozAppearance: "textfield",
-                        appearance: "textfield",
-                        width: "100%",
-                      }}
-                    />
+                  {editTax && !addTax ? (
+                    <>
+                      <input
+                        type="number"
+                        onChange={(e) => handleTaxChange(e)}
+                        className="form-control"
+                        value={parseFloat(invoiceTaxesSum)}
+                        width={"100%"}
+                        style={{
+                          MozAppearance: "textfield",
+                          appearance: "textfield",
+                          width: "100%",
+                        }}
+                      />
+                      <PlusCircleFill
+                        style={{
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {
+                          setAddTax(true);
+                        }}
+                      />
+                    </>
+                  ) : editTax && addTax ? (
+                    <>
+                      <select className="form-select mb-3">
+                        {taxes.map((tax, index) => (
+                          <option key={index} value={tax}>
+                            {tax}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="input-group mb-3">
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Add"
+                          value={newTax}
+                          onChange={handleInputChangeTaxAddition}
+                        />
+                        <PlusCircleFill style={{cursor: "pointer"}} className=" mx-4 fs-16" onClick={addNewTax}/>
+                      </div>
+                    </>
                   ) : (
                     invoiceTaxesSum?.toFixed(2)
                   )}
@@ -755,7 +858,7 @@ export default function HumanVerification({
               </ListGroup>
             </Col>
             <Col xs={12} sm={6} md={4} lg={2}>
-              <p>Total</p>
+              <p>Final Total</p>
               <p>
                 <ListGroup>
                   {" "}
@@ -769,6 +872,25 @@ export default function HumanVerification({
                   >
                     {" "}
                     ${calculatedSum}
+                  </ListGroup.Item>
+                </ListGroup>
+              </p>
+            </Col>
+            <Col xs={12} sm={6} md={4} lg={2}>
+              <p>Extracted Total</p>
+              <p>
+                <ListGroup>
+                  {" "}
+                  <ListGroup.Item
+                    className={`${
+                      calculatedSum - invoiceTotal > 0 ||
+                      calculatedSum - invoiceTotal < -0
+                        ? "text-danger fw-bolder border-danger"
+                        : "text-success fw-bolder border-success"
+                    }`}
+                  >
+                    {" "}
+                    ${invoiceTotal}
                   </ListGroup.Item>
                 </ListGroup>
               </p>
@@ -796,6 +918,7 @@ export default function HumanVerification({
           </Row>
         </Card.Body>
       </Card>
+
       <div className="d-flex justify-content-end my-2 mx-2 mb-4">
         <button
           className="shadow-lg btn mx-1 btn-sm"
@@ -811,265 +934,35 @@ export default function HumanVerification({
           Save
         </button>
       </div>
-      <Modal
-        show={show}
-        onHide={handleClose}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">
-            Add Columns from Combined Additional Columns
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div
-            style={{
-              width: width || "100%",
-              height: "471px",
-              overflowX: "scroll",
-              overflowY: "scroll",
-            }}
-          >
-            <table className="table table-striped table-responsive">
-              <thead>
-                <tr>
-                  {invAdditionalTableheaders.map((header, index) => (
-                    <th
-                      style={{
-                        backgroundColor: "#FFF2CD",
-                        textTransform: "capitalize",
-                        verticalAlign: "middle",
-                        cursor: "pointer",
-                      }}
-                      key={index}
-                      className="resizable-header"
-                      onClick={(e) => addNewColumn(e, index)}
-                    >
-                      <ResizableCell width={100}>
-                        <div
-                          style={{
-                            lineHeight: "1.5",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          }}
-                        >
-                          {header}
-                        </div>
-                      </ResizableCell>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {Object.keys(dataForAdditionaltable).map((key, rowIndex) => (
-                  <tr key={rowIndex}>
-                    {dataForAdditionaltable.map((header, colIndex) => (
-                      <td
-                        style={{
-                          backgroundColor: `${
-                            dataForAdditionaltable[key][colIndex]?.confidence <
-                            80
-                              ? "#A9A9A9"
-                              : null
-                          }`,
-                        }}
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title={`Confidence: ${dataForAdditionaltable[key][colIndex]?.confidence}`}
-                        key={colIndex}
-                      >
-                        {dataForAdditionaltable[key][colIndex]?.text}
-                        <Tooltip id={colIndex} />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button className="btn-danger" onClick={() => handleClose()}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
 
-      <Modal
-        show={showTwo}
-        onHide={handleCloseTwo}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">
-            Add Columns From Table Specific Additional Columns
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="d-flex justify-content-center">
-            {tableNames.map(
-              (tableName) =>
-                tableName && (
-                  <button
-                    key={tableName}
-                    onClick={() => {
-                      setDataForTableSpecificTable(tableName);
-                    }}
-                    style={{ textTransform: "capitalize" }}
-                    className="btn btn-warning mx-2 mb-2"
-                  >
-                    {tableName}
-                  </button>
-                )
-            )}
-          </div>
-          <div
-            style={{
-              width: width || "100%",
-              height: "300px",
-              overflowX: "auto",
-              overflowY: "auto",
-            }}
-          >
-            {additionalTableheaders.length === 0 && !selectedTable ? (
-              <div className="mx-auto text-center">
-                Please select a table to view the additional columns
-              </div>
-            ) : additionalTableheaders.length === 0 && selectedTable ? (
-              <div className="mx-auto text-center">
-                This table doesn't contain any additional columns
-              </div>
-            ) : (
-              <table className="table table-striped table-responsive">
-                <thead>
-                  <tr>
-                    {additionalTableheaders.map((header, index) => (
-                      <th
-                        style={{
-                          backgroundColor: "#FFF2CD",
-                          textTransform: "capitalize",
-                          verticalAlign: "middle",
-                          cursor: "pointer",
-                          borderColor: `${
-                            additionIndex == index ? "green" : "transparent"
-                          }`,
-                          borderWidth: `2px`,
-                          borderStyle: `solid`,
-                        }}
-                        key={index}
-                        className="resizable-header"
-                        onClick={(e) => {
-                          if (selectedTableName === "table_1") {
-                            addColumnFromTableSpecificAdditionalColumns(
-                              e,
-                              index
-                            );
-                          } else {
-                            setAdditionIndex(index);
-                          }
-                        }}
-                      >
-                        <ResizableCell width={100}>
-                          <div
-                            style={{
-                              lineHeight: "1.5",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                            }}
-                          >
-                            {header}
-                          </div>
-                        </ResizableCell>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.keys(dataForTableSpecificAddTab).map(
-                    (key, rowIndex) => (
-                      <tr key={rowIndex}>
-                        {dataForTableSpecificAddTab.map((header, colIndex) => (
-                          <td
-                            style={{
-                              backgroundColor: `${
-                                dataForTableSpecificAddTab[key][colIndex]
-                                  ?.confidence < 80
-                                  ? "#A9A9A9"
-                                  : null
-                              }`,
-                              borderColor: `${
-                                additionIndex == colIndex
-                                  ? "green"
-                                  : "transparent"
-                              }`,
-                              borderWidth: `2px`,
-                              borderStyle: `solid`,
-                            }}
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title={`Confidence: ${dataForTableSpecificAddTab[key][colIndex]?.confidence}`}
-                            key={colIndex}
-                          >
-                            {dataForTableSpecificAddTab[key][colIndex]?.text}
-                            <Tooltip id={colIndex} />
-                          </td>
-                        ))}
-                      </tr>
-                    )
-                  )}
-                </tbody>
-              </table>
-            )}
-          </div>
-          {selectedTable &&
-            selectedTableName !== "table_1" &&
-            additionIndex !== null && (
-              <>
-                <h6 className="mx-2 mb-2">Select a target header</h6>
-                <div className="container text-center">
-                  {invNewTableheaders.map((header, index) => (
-                    <button
-                      key={index}
-                      className={`btn my-2 mx-2 ${
-                        index === headerIndex
-                          ? "btn-outline-warning"
-                          : "btn-warning"
-                      }`}
-                      onClick={(e) => {
-                        setHeaderIndex(index);
-                        toast.success(`Header ${header} selected!`);
-                      }}
-                    >
-                      {header}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          {additionIndex !== null && headerIndex !== null && (
-            <div className="text-muted text-sm text-center">
-              <em>
-                The selected column would be merged with{" "}
-                {invNewTableheaders[headerIndex]}
-              </em>
-            </div>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            className="btn-warning"
-            onClick={(e) =>
-              addColumnFromTableSpecificAdditionalColumns(e, additionIndex)
-            }
-          >
-            Save
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <CombinedCols
+        show={show}
+        handleClose={handleClose}
+        invAdditionalTableheaders={invAdditionalTableheaders}
+        dataForAdditionaltable={dataForAdditionaltable}
+        addNewColumn={addNewColumn}
+      />
+
+      <UnrecognizedCols
+        showTwo={showTwo}
+        handleCloseTwo={handleCloseTwo}
+        tableNames={tableNames}
+        setDataForTableSpecificTable={setDataForTableSpecificTable}
+        additionalTableheaders={additionalTableheaders}
+        dataForTableSpecificAddTab={dataForTableSpecificAddTab}
+        addColumnFromTableSpecificAdditionalColumns={
+          addColumnFromTableSpecificAdditionalColumns
+        }
+        additionalHeaders={additionalHeaders}
+        invNewTableheaders={invNewTableheaders}
+        addTabData={addTabData}
+        headerIndex={headerIndex}
+        setHeaderIndex={setHeaderIndex}
+        additionIndex={additionIndex}
+        setAdditionIndex={setAdditionIndex}
+        selectedTableName={selectedTableName}
+        selectedTable={selectedTable}
+      />
     </>
   );
 }

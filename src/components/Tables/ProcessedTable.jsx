@@ -1,19 +1,7 @@
 import React from "react";
-import { Resizable } from "react-resizable";
 import { Tooltip } from "react-tooltip";
+import ResizableCell from "../Utility/ResizableCell";
 
-const ResizableCell = ({ children, width, ...rest }) => {
-    return (
-      <Resizable
-        width={width}
-        height={0}
-        handle={<div className="react-resizable-handle" />}
-        {...rest}
-      >
-        <div>{children}</div>
-      </Resizable>
-    );
-  };
 
 export default function ProcessedTable({ invoiceTableData }) {
   const invTableheaders = Object.values(invoiceTableData[0]).map(
