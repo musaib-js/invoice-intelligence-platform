@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col } from "react-bootstrap";
+import { Row, Col, Toast } from "react-bootstrap";
 import TableComponent from "./TableComponent";
-import { pdfjs } from "react-pdf";
-import {  Pagination  } from 'antd'
+import { Pagination } from "antd";
 import {
   ArrowRightCircleFill,
   ArrowLeftCircleFill,
@@ -10,11 +9,13 @@ import {
 import axios from "axios";
 import { ColorRing } from "react-loader-spinner";
 import { Scrollbars } from "react-custom-scrollbars-2";
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.js",
-  import.meta.url
-).toString();
+import { toast, ToastContainer } from "react-toastify";
+import { Document, Page, pdfjs } from "react-pdf";
+import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
+pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+
 const PDFTableComponent = () => {
+  const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [tableData, setTableData] = useState([]);
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -67,23 +68,36 @@ const PDFTableComponent = () => {
   const [numberOfRows, setNumberOfRows] = useState({});
   const [additionalColsTables, setAdditionalColsTables] = useState([]);
   const [saved, setSaved] = useState(false);
-
+  const [getVerified, setGetVerified] = useState("both");
+  const [status, setStatus] = useState(true);
+  const [showVertical, setShowVertical] = useState(false);
   useEffect(() => {
     if (pageNumber === 0) {
       return;
     }
     setLoading(true);
-    const apiUrl = `${process.env.REACT_APP_INVOICE_URL}/${pageNumber}`;
+    const body = {
+      pdf_index: pageNumber,
+      filters: {
+        human_verification: "both",
+        human_verified: getVerified,
+      },
+    };
+    const apiUrl = `${process.env.REACT_APP_INVOICE_URL}`;
     axios
-      .get(apiUrl)
+      .post(apiUrl, body)
       .then((response) => {
         // Get data for table
         const data = response.data.response.invoice;
+        setPdfUrl(response.data?.response?.pdf_link);
+        console.log("The new pdf url is", pdfUrl)
         if (Object.keys(data).length === 0) {
+          toast.error("No data found for this invoice");
+          setStatus(false);
           setTableData([]);
           setLoading(false);
           setTotalInvoices(response.data.response.total_invoices);
-          setPdfUrl(response.data.response.pdf_link);
+          // setPdfUrl(response.data.response.pdf_link);
           setInvoiceNum(response.data.response.invoice_number);
           return;
         }
@@ -107,9 +121,8 @@ const PDFTableComponent = () => {
           setInvoiceTableData([]);
           setLoading(false);
           setTotalInvoices(response.data.response.total_invoices);
-          setPdfUrl(response.data.response.pdf_link);
+          // setPdfUrl(response.data.response.pdf_link);
           setInvoiceNum(response.data.response.invoice_number);
-          return;
         }
 
         const keys0 = Object.keys(data0);
@@ -132,7 +145,6 @@ const PDFTableComponent = () => {
         if (data1 && Object.keys(data1).length === 0) {
           setAdditionalCols([]);
           setLoading(false);
-          return;
         }
         if (data1 && Object.keys(data1).length > 0) {
           const keys1 = Object.keys(data1);
@@ -155,7 +167,7 @@ const PDFTableComponent = () => {
             "table_specific_additional_columns"
           ]
         );
-        setPdfUrl(response.data.response.pdf_link);
+        // setPdfUrl(response.data.response.pdf_link);
         setInvoiceNum(response.data.response.invoice_metadata.invoice_number);
         setInvoiceDate(response.data.response.invoice_metadata.invoice_date);
         setvendorName(response.data.response.invoice_metadata.vendor_name);
@@ -233,12 +245,12 @@ const PDFTableComponent = () => {
           response.data.response.invoice_metadata.number_of_rows_in_tables
         );
         setLoading(false);
-        setSaved(false)
+        setSaved(false);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, [pageNumber, saved]);
+  }, [pageNumber, saved, getVerified]);
 
   const handleInputChange = (e) => {
     const newValue = e.target.value === "" ? 0 : parseInt(e.target.value, 10);
@@ -287,6 +299,25 @@ const PDFTableComponent = () => {
       setInvoiceNumArray([]);
     }
   }, [searchInput, selectedFilter]);
+
+  /*When document gets loaded successfully*/
+  function onDocumentLoadSuccess({ numPages }) {
+    setNumPages(numPages);
+    setPageNumber(1);
+  }
+
+  function changePage(offset) {
+    setPageNumber((prevPageNumber) => prevPageNumber + offset);
+  }
+
+  function previousPage() {
+    changePage(-1);
+  }
+
+  function nextPage() {
+    changePage(1);
+  }
+
   return (
     <>
       <nav
@@ -307,12 +338,12 @@ const PDFTableComponent = () => {
           }}
         >
           <div
-            className="navbar-brand mb-0 h1 m-auto col-md-6 float-start"
+            className="navbar-brand mb-0 h1 m-auto col-md-3 float-start"
             style={{ fontSize: "1.4em", letterSpacing: "1px" }}
           >
             Invoice Intelligence Platform
           </div>
-          <div className="col-md-6 float-end">
+          <div className="col-md-3">
             <div className="input-group" style={{ width: "100%" }}>
               <select
                 className="form-select"
@@ -398,30 +429,53 @@ const PDFTableComponent = () => {
               ) : null}
             </div>
           </div>
+          <div className="form-check col-md-3">
+            <input
+              className="form-check-input mx-2"
+              type="checkbox"
+              id="inlineCheckbox1"
+              value={getVerified}
+              onChange={() => setShowVertical(!showVertical)}
+              style={{ float: "none" }}
+            />
+            <label className="form-check-label" htmlFor="flexCheckDefault">
+              Change Layout
+            </label>
+          </div>
         </div>
       </nav>
       <div className="mx-5" style={{ marginTop: "135px" }}>
         {loading ? (
-          <ColorRing
-            visible={true}
-            height="80"
-            width="80"
-            ariaLabel="blocks-loading"
-            wrapperStyle={{}}
-            wrapperClass="blocks-wrapper"
-            colors={[
-              "#F57E37",
-              "#1BBEE9",
-              "#F57E37",
-              "#1BBEE9",
-              "#F57E37",
-              "#1BBEE9",
-            ]}
-          />
+          <>
+            <ColorRing
+              visible={true}
+              height="80"
+              width="80"
+              ariaLabel="blocks-loading"
+              wrapperStyle={{}}
+              wrapperClass="blocks-wrapper"
+              colors={[
+                "#F57E37",
+                "#1BBEE9",
+                "#F57E37",
+                "#1BBEE9",
+                "#F57E37",
+                "#1BBEE9",
+              ]}
+            />
+            {/* {status ? (
+            <div className="container">
+          <button onClick={()=>{
+          }} className="btn btn-warning"> No data found
+          </button> 
+          </div>
+          ):null
+          } */}
+          </>
         ) : (
           <>
             <Row>
-              <Col md={6}>
+              <Col md={showVertical ? 12 : 6}>
                 <div
                   style={{
                     height: "580px",
@@ -434,6 +488,9 @@ const PDFTableComponent = () => {
                     height="570"
                     allow="autoplay"
                   ></iframe>
+                  {/* <Document file={"https://polynomialservices.blob.core.windows.net/invoice-intelligence-test/rest_1337/invoice_3/invoice.pdf"} onLoadSuccess={onDocumentLoadSuccess}>
+                    <Page pageNumber={pageNumber} />
+                  </Document> */}
                 </div>
                 <div className="my-4">
                   <span className="my-4 mx-2">
@@ -474,10 +531,10 @@ const PDFTableComponent = () => {
                   </span>
                 </div>
                 <div>
-                {/* <Pagination simple defaultCurrent={2} total={50} /> */}
+                  {/* <Pagination simple defaultCurrent={2} total={50} /> */}
                 </div>
               </Col>
-              <Col md={6}>
+              <Col md={showVertical ? 12 : 6}>
                 <div className="mb-4" style={{ height: "530px" }}>
                   <TableComponent
                     data={tableData}
@@ -510,7 +567,9 @@ const PDFTableComponent = () => {
                     failedReasons={failedReasons}
                     concerns={concerns}
                     extraChargesAdded={extraChargesAdded}
+                    setExtraChargesAdded={setExtraChargesAdded}
                     extraDiscountsAdded={extraDiscountsAdded}
+                    setExtraDiscountsAdded={setExtraDiscountsAdded}
                     respData={respData}
                     setInvoiceTableData={setInvoiceTableData}
                     additionalCols={additionalCols}
@@ -519,10 +578,12 @@ const PDFTableComponent = () => {
                     tableSpecificAddCols={tableSpecificAddCols}
                     numberOfRows={numberOfRows}
                     additionalColsTables={additionalColsTables}
-                    setPageNumber = {setPageNumber}
-                    pageNumber = {pageNumber}
-                    setSaved = {setSaved}
-                    />
+                    setPageNumber={setPageNumber}
+                    pageNumber={pageNumber}
+                    setSaved={setSaved}
+                    showVertical={showVertical}
+                    setInvoiceTotal={setInvoiceTotal}
+                  />
                 </div>
               </Col>
             </Row>
