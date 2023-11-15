@@ -68,7 +68,7 @@ const PDFTableComponent = () => {
   const [numberOfRows, setNumberOfRows] = useState({});
   const [additionalColsTables, setAdditionalColsTables] = useState([]);
   const [saved, setSaved] = useState(false);
-  const [getVerified, setGetVerified] = useState(false);
+  const [getVerified, setGetVerified] = useState("both");
   const [status, setStatus] = useState(true);
   const [showVertical, setShowVertical] = useState(false);
   useEffect(() => {
@@ -80,7 +80,7 @@ const PDFTableComponent = () => {
       pdf_index: pageNumber,
       filters: {
         human_verification: "both",
-        human_verified: `${getVerified}`,
+        human_verified: getVerified,
       },
     };
     const apiUrl = `${process.env.REACT_APP_INVOICE_URL}`;
