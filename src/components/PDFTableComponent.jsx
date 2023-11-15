@@ -123,7 +123,6 @@ const PDFTableComponent = () => {
           setTotalInvoices(response.data.response.total_invoices);
           // setPdfUrl(response.data.response.pdf_link);
           setInvoiceNum(response.data.response.invoice_number);
-          return;
         }
 
         const keys0 = Object.keys(data0);
@@ -146,7 +145,6 @@ const PDFTableComponent = () => {
         if (data1 && Object.keys(data1).length === 0) {
           setAdditionalCols([]);
           setLoading(false);
-          return;
         }
         if (data1 && Object.keys(data1).length > 0) {
           const keys1 = Object.keys(data1);
