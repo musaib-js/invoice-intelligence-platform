@@ -12,6 +12,7 @@ import { Scrollbars } from "react-custom-scrollbars-2";
 import { toast, ToastContainer } from "react-toastify";
 import { Document, Page, pdfjs } from "react-pdf";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
+import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
 
 const PDFTableComponent = () => {
@@ -71,6 +72,10 @@ const PDFTableComponent = () => {
   const [getVerified, setGetVerified] = useState("both");
   const [status, setStatus] = useState(true);
   const [showVertical, setShowVertical] = useState(false);
+  const [blobPath, setBlobPath] = useState(null);
+  const [pageNum, setPageNum] = useState(1);
+  const [scale, setScale] = useState(1.0);
+  const [pdfSource, setPdfSource] = useState(null);
   useEffect(() => {
     if (pageNumber === 0) {
       return;
@@ -90,7 +95,9 @@ const PDFTableComponent = () => {
         // Get data for table
         const data = response.data.response.invoice;
         setPdfUrl(response.data?.response?.pdf_link);
-        console.log("The new pdf url is", pdfUrl)
+        setBlobPath(response.data?.response?.blob_path);
+        setPdfSource(response.data?.response?.pdf_source);
+        console.log("The new pdf url is", pdfUrl);
         if (Object.keys(data).length === 0) {
           toast.error("No data found for this invoice");
           setStatus(false);
@@ -303,11 +310,11 @@ const PDFTableComponent = () => {
   /*When document gets loaded successfully*/
   function onDocumentLoadSuccess({ numPages }) {
     setNumPages(numPages);
-    setPageNumber(1);
+    setPageNum(1);
   }
 
   function changePage(offset) {
-    setPageNumber((prevPageNumber) => prevPageNumber + offset);
+    setPageNum((prevPageNum) => prevPageNum + offset);
   }
 
   function previousPage() {
@@ -317,7 +324,13 @@ const PDFTableComponent = () => {
   function nextPage() {
     changePage(1);
   }
+  const zoomIn = () => {
+    setScale((prevScale) => prevScale + 0.25);
+  };
 
+  const zoomOut = () => {
+    setScale((prevScale) => Math.max(0.25, prevScale - 0.25));
+  };
   return (
     <>
       <nav
@@ -476,22 +489,51 @@ const PDFTableComponent = () => {
           <>
             <Row>
               <Col md={showVertical ? 12 : 6}>
-                <div
-                  style={{
-                    height: "580px",
-                  }}
-                >
-                  <iframe
-                    title="pdf"
-                    src={pdfUrl}
-                    width="100%"
-                    height="570"
-                    allow="autoplay"
-                  ></iframe>
-                  {/* <Document file={"https://polynomialservices.blob.core.windows.net/invoice-intelligence-test/rest_1337/invoice_3/invoice.pdf"} onLoadSuccess={onDocumentLoadSuccess}>
-                    <Page pageNumber={pageNumber} />
-                  </Document> */}
+                <div style={{ height: "580px", overflow: "auto" }}>
+                  {pdfSource === "azure_blob" ? (
+                    <>
+                      <Document
+                        file={pdfUrl}
+                        onLoadSuccess={onDocumentLoadSuccess}
+                      >
+                        <Page pageNumber={pageNum} scale={scale} />
+                      </Document>
+                      <div className="mt-0">
+                        {/* <div className="pagec">
+                      Page {(numPages ? 1 : "--")} of{" "}
+                      {numPages || "--"}
+                    </div> */}
+                        <div className="buttonc">
+                          <button
+                            type="button"
+                            disabled={pageNum <= 1}
+                            onClick={previousPage}
+                            className="btn btn-sm btn-outline-secondary mx-2"
+                          >
+                            Previous
+                          </button>
+                          <button
+                            type="button"
+                            disabled={pageNum >= numPages}
+                            onClick={nextPage}
+                            className="btn btn-sm btn-outline-secondary mx-2"
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <iframe
+                      title="pdf"
+                      src={pdfUrl}
+                      width="100%"
+                      height="570"
+                      allow="autoplay"
+                    ></iframe>
+                  )}
                 </div>
+
                 <div className="my-4">
                   <span className="my-4 mx-2">
                     <ArrowLeftCircleFill
