@@ -22,7 +22,7 @@ export default function ProcessedTable({ invoiceTableData }) {
         overflowY: "auto",
       }}
     >
-      <table className="table table-striped table-responsive">
+      <table className="table table-bordered border-gray table-striped table-responsive">
         <thead>
           <tr>
             {invTableheaders.map((header, index) => (

@@ -272,11 +272,11 @@ const PDFTableComponent = () => {
     const inputValue = event.target.value;
     setSearchInput(inputValue);
   };
-  // const handleBlurSearch = () => {
-  //   setTimeout(() => {
-  //     setSearchResutsVisible(false);
-  //   }, 100);
-  // };
+  const handleBlurSearch = () => {
+    setTimeout(() => {
+      setSearchResutsVisible(false);
+    }, 200);
+  };
   useEffect(() => {
     console.log("the url is");
     const payload = {
@@ -376,7 +376,7 @@ const PDFTableComponent = () => {
                 aria-label="Search Invoice"
                 aria-describedby="basic-addon1"
                 onChange={handleSearchInputChange}
-                // onBlur={handleBlurSearch}
+                onBlur={handleBlurSearch}
                 value={searchInput}
               />
               <span className="input-group-text" id="basic-addon1">
