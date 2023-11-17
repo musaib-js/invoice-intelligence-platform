@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Tooltip } from "react-tooltip";
-import { Card, Col, ListGroup, Row } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { PlusCircleFill } from "react-bootstrap-icons";
@@ -215,9 +214,10 @@ export default function HumanVerification({
       }
       discountArray.push(parseFloat(newDiscount));
       setExtraDiscountsAdded(discountArray)
-      setAddDiscount(false)
-      setEditDiscount(false)
       setNewDiscount("");
+    }
+    else{
+      console.log("erro")
     }
   };
 
@@ -442,6 +442,7 @@ export default function HumanVerification({
       // // Remove the added column from additionalCols
       // const updatedAdditionalCols = additionalCols.map((col) => {
       //   const updatedCol = { ...col };
+      //   console.log("the column to be removed is", updatedCol[index])
       //   delete updatedCol[index];
       //   return updatedCol;
       // });
@@ -449,7 +450,6 @@ export default function HumanVerification({
       setShow(false);
       setShowTwo(false);
       setInvoiceTableData(updatedData);
-      // setAdditionalCols(updatedAdditionalCols);
     } catch (error) {
       console.log("An error occurred:", error);
       toast.error("An error occurred while adding the column.");
@@ -691,50 +691,6 @@ export default function HumanVerification({
           </tbody>
         </table>
       </div>
-      {/* <div className="d-flex justify-content-center mt-2 p-2 border border-gray rounded mx-2 text-center">
-        <div className="mx-2 text-center">
-          <PlusCircleFill
-            onClick={() => {
-              addEmptyRow();
-            }}
-            className="mx-auto fs-32 text-warning"
-            style={{
-              fontSize: "2rem",
-              cursor: "pointer",
-            }}
-          ></PlusCircleFill>
-          <p className="mx-auto text-center">Add Row</p>
-        </div>
-
-        <div className="mx-2 text-center">
-          <PlusCircleFill
-            onClick={() => {
-              handleShow();
-            }}
-            className="mx-auto fs-32 text-warning"
-            style={{
-              fontSize: "2rem",
-              cursor: "pointer",
-            }}
-            title="Click to view the processed columns"
-          ></PlusCircleFill>
-          <p className="mx-auto text-center">Add Processed Columns</p>
-        </div>
-        <div className="mx-2 text-center">
-          <PlusCircleFill
-            onClick={() => {
-              handleShowTwo();
-            }}
-            className="mx-auto fs-32 text-warning"
-            style={{
-              fontSize: "2rem",
-              cursor: "pointer",
-            }}
-            title="Click to view the unrecognized columns that were not compatible for combining with the processed columns"
-          ></PlusCircleFill>
-          <p className="mx-auto text-center">Unrecognized Columns</p>
-        </div>
-      </div> */}
       <div>
   <div class="row justify-content-around mt-2 p-2 border border-gray rounded mx-2 text-center">
     <div class="col-3 mx-2 text-center">
@@ -805,12 +761,17 @@ export default function HumanVerification({
       handleTaxChange = {handleTaxChange} 
       taxes = {taxes} 
       discounts = {discounts} 
+      setDiscounts = {setDiscounts}
       newDiscount = {newDiscount} 
       handleInputChangeDiscountAddition = {handleInputChangeDiscountAddition} 
       addNewDiscount = {addNewDiscount} 
       newTax = {newTax} 
       handleInputChangeTaxAddition = {handleInputChangeTaxAddition} 
       addNewTax = {addNewTax}
+      extraDiscountsAdded = {extraDiscountsAdded}
+      setExtraDiscountsAdded = {setExtraDiscountsAdded}
+      extraChargesAdded = {extraChargesAdded}
+      setExtraChargesAdded = {setExtraChargesAdded}
       />
       <div className="d-flex justify-content-end my-2 mx-2 mb-4">
         <button

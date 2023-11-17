@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Toast } from "react-bootstrap";
+import { Row, Col, } from "react-bootstrap";
 import TableComponent from "./TableComponent";
-import { Pagination } from "antd";
+import { Button, ButtonGroup } from "react-bootstrap";
 import {
   ArrowRightCircleFill,
   ArrowLeftCircleFill,
@@ -9,7 +9,7 @@ import {
 import axios from "axios";
 import { ColorRing } from "react-loader-spinner";
 import { Scrollbars } from "react-custom-scrollbars-2";
-import { toast, ToastContainer } from "react-toastify";
+import { toast} from "react-toastify";
 import { Document, Page, pdfjs } from "react-pdf";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
@@ -76,6 +76,7 @@ const PDFTableComponent = () => {
   const [pageNum, setPageNum] = useState(1);
   const [scale, setScale] = useState(1.0);
   const [pdfSource, setPdfSource] = useState(null);
+  const [version, setVersion] = useState(1);
   useEffect(() => {
     if (pageNumber === 0) {
       return;
@@ -251,6 +252,7 @@ const PDFTableComponent = () => {
         setNumberOfRows(
           response.data.response.invoice_metadata.number_of_rows_in_tables
         );
+        setVersion(response.data.response.version);
         setLoading(false);
         setSaved(false);
       })
@@ -457,7 +459,38 @@ const PDFTableComponent = () => {
           </div>
         </div>
       </nav>
-      <div className="mx-5" style={{ marginTop: "135px" }}>
+      <div className="mx-1">
+        {version > 1 ? (
+          <>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "left",
+                alignItems: "left",
+                marginTop: "100px",
+              }}
+            >
+              <div
+                style={{
+                  backgroundColor: "#f0f0f0",
+                  padding: "10px",
+                  borderRadius: "5px",
+                  width: "100%",
+                  textAlign: "left",
+                }}
+                className="mx-4"
+              >
+                <ButtonGroup aria-label="Invoice Buttons">
+                  <Button variant="secondary" onClick={()=>{setGetVerified("both")}}>All</Button>
+                  <Button variant="secondary" className="text-black" style={{backgroundColor:"rgb(253, 255, 208)"}} onClick={()=>{setGetVerified("false")}}>Raw Invoice</Button>
+                  <Button variant="warning" onClick={()=>{setGetVerified("true")}}>Verified Invoice</Button>
+                </ButtonGroup>
+              </div>
+            </div>
+          </>
+        ) : null}
+      </div>
+      <div className="mx-5" style={{ marginTop: loading || getVerified==="false"|| version==1?"135px":"35px" }}>
         {loading ? (
           <>
             <ColorRing
@@ -476,14 +509,6 @@ const PDFTableComponent = () => {
                 "#1BBEE9",
               ]}
             />
-            {/* {status ? (
-            <div className="container">
-          <button onClick={()=>{
-          }} className="btn btn-warning"> No data found
-          </button> 
-          </div>
-          ):null
-          } */}
           </>
         ) : (
           <>
