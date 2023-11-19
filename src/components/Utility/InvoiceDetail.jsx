@@ -215,8 +215,8 @@ export default function InvoiceDetail({
               {" "}
               <ListGroup.Item
                 className={
-                  invoiceTotalFromtable - calculatedSum > 0 ||
-                  invoiceTotalFromtable - calculatedSum < -0
+                  invoiceTotal - calculatedSum > 0 ||
+                  invoiceTotal - calculatedSum < -0
                     ? "text-danger fw-bolder border-danger"
                     : "text-success fw-bolder border-success"
                 }
